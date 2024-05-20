@@ -1,0 +1,935 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:05
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\main.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW8E0C.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\main.c" -lC
+#        "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\Debug\List"
+#        -o "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\Debug\Obj"
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa --debug
+#        -D__MSP430FR2355__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 8.5\430\lib\dlib\dl430xlsfn.h" -I
+#        ./ --core=430X --data_model=small -On --multiplier=32
+#        --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\main.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\main.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\main.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the Main Routine - "While" Operating System
+      4          //
+      5          //
+      6          //  Nick Urch
+      7          //  August 24 2022
+      8          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          //------------------------------------------------------------------------------
+     12          #include  "functions.h"
+     13          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x222
+   \   union <unnamed> _A_PBOUT_L
+   \                     _A_PBOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x130
+   \   union <unnamed> _A_PM5CTL0_L
+   \                     _A_PM5CTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+     14          #include <string.h>
+     15          #include "macros.h"
+     16          
+     17          extern char display_line[4][11];
+     18          extern volatile unsigned char display_changed;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          volatile unsigned int Time_Sequence;
+   \                     Time_Sequence:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          unsigned int Last_Time_Sequence; 			// a variable to identify Time_Sequence has changed
+   \                     Last_Time_Sequence:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     21          unsigned int time_change; 							// is an identifier that a change has occurre
+   \                     time_change:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     22          unsigned int wait_timer;
+   \                     wait_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          unsigned int wait_counter;
+   \                     wait_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     24          unsigned int wheel_timer;
+   \                     wheel_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          unsigned int wheel_counter;
+   \                     wheel_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          unsigned int wheelsON;
+   \                     wheelsON:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          unsigned int found_timer;
+   \                     found_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          unsigned int found_counter;
+   \                     found_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          unsigned int follow_timer;
+   \                     follow_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          unsigned int follow_counter;
+   \                     follow_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     31          unsigned int seek_timer;
+   \                     seek_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32          unsigned int seek_counter;
+   \                     seek_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     33          unsigned int align_timer;
+   \                     align_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34          unsigned int align_counter;
+   \                     align_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          unsigned int startUp_timer;
+   \                     startUp_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     36          unsigned int startUp_counter;
+   \                     startUp_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     37          unsigned int exit_timer;
+   \                     exit_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     38          unsigned int exit_counter;
+   \                     exit_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     39          unsigned int setup_timer;
+   \                     setup_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     40          unsigned int setup_counter;
+   \                     setup_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     41          unsigned int start_timer;
+   \                     start_timer:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     42          unsigned int total_time;
+   \                     total_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     43          char check_point = '0';
+   \                     check_point:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for check_point>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     44          unsigned int runMode = IDLE;
+   \                     runMode:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     45          unsigned int port3_operation = USE_SMCLK;
+   \                     port3_operation:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for port3_operation>`
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     46          volatile unsigned char ADC_On;
+   \                     ADC_On:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     47          volatile unsigned int ADC_timer;
+   \                     ADC_timer:
+   \   000000                DS8 2
+     48          volatile unsigned int ADC_Channel;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     49          volatile unsigned int ADC_Thumb;
+   \                     ADC_Thumb:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     50          volatile unsigned int ADC_Left;
+   \                     ADC_Left:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     51          volatile unsigned int ADC_Right;
+   \                     ADC_Right:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     52          volatile unsigned int ADC_Channel;
+   \                     ADC_Channel:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     53          unsigned int offRight;
+   \                     offRight:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     54          unsigned int offLeft;
+   \                     offLeft:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     55          unsigned int foundLine;
+   \                     foundLine:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     56          unsigned char firstOff = NONE;
+   \                     firstOff:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for firstOff>`
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     57          unsigned char firstOn = NONE;
+   \                     firstOn:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for firstOn>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     58          unsigned int display_menu;
+   \                     display_menu:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     59          unsigned int LCD_Menu = LCD_MAIN;
+   \                     LCD_Menu:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for LCD_Menu>`
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     60          unsigned int LCD_Prev = LCD_MAIN;
+   \                     LCD_Prev:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for LCD_Prev>`
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     61          unsigned volatile char buff0Read[RNG_SIZE];
+   \                     buff0Read:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     62          unsigned volatile char buff1Read[RNG_SIZE];
+   \                     buff1Read:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     63          char buff0Proc[PROC_SIZE];
+   \                     buff0Proc:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     64          char buff1Proc[PROC_SIZE];
+   \                     buff1Proc:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     65          char buff0Out[PROC_SIZE];
+   \                     buff0Out:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     66          char buff1Out[PROC_SIZE];
+   \                     buff1Out:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     67          char msg[PROC_SIZE];
+   \                     msg:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     68          char buffMsg[PROC_SIZE];
+   \                     buffMsg:
+   \   000000                DS8 48
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     69          unsigned char exCommand;
+   \                     exCommand:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     70          unsigned char moreCommand;
+   \                     moreCommand:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     71          unsigned volatile char ring0Read;
+   \                     ring0Read:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     72          unsigned volatile char ring0Write;
+   \                     ring0Write:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     73          unsigned volatile char ring1Read;
+   \                     ring1Read:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     74          unsigned volatile char ring1Write;
+   \                     ring1Write:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     75          unsigned char proc0Read;
+   \                     proc0Read:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     76          unsigned char proc1Read;
+   \                     proc1Read:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     77          unsigned char proc0Write;
+   \                     proc0Write:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     78          unsigned char proc1Write;
+   \                     proc1Write:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     79          unsigned char txPassThrough;
+   \                     txPassThrough:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     80          unsigned char inCommand;
+   \                     inCommand:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     81          unsigned char getIP;
+   \                     getIP:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     82          unsigned char startIP;
+   \                     startIP:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     83          char buffIP[BUFF_IP_SIZE];
+   \                     buffIP:
+   \   000000                DS8 16
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     84          char buffIPWrite;
+   \                     buffIPWrite:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     85          char IP1[TMP_IP_SIZE];
+   \                     IP1:
+   \   000000                DS8 10
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     86          char IP2[TMP_IP_SIZE];
+   \                     IP2:
+   \   000000                DS8 10
+     87          
+
+   \                                 In  segment CODE, align 2
+     88          void main(void){
+   \                     main:
+     89          //------------------------------------------------------------------------------
+     90          // Main Program
+     91          // This is the main routine for the program. Execution of code starts here.
+     92          // The operating system is Back Ground Fore Ground.
+     93          //
+     94          //------------------------------------------------------------------------------
+     95          	PM5CTL0 &= ~LOCKLPM5;
+   \   000000   92C33001     BIC.W   #0x1, &0x130
+     96          	// Disable the GPIO power-on default high-impedance mode to activate
+     97          	// previously configured port settings
+     98          
+     99            Init_Ports();                        // Initialize Ports
+   \   000004   ........     CALLA   #Init_Ports
+    100            Init_Clocks();   										// Initialize Clock System
+   \   000008   ........     CALLA   #Init_Clocks
+    101          	Init_Serial_UCA0();
+   \   00000C   ........     CALLA   #Init_Serial_UCA0
+    102          	Init_Serial_UCA1();
+   \   000010   ........     CALLA   #Init_Serial_UCA1
+    103            Init_Conditions();                   // Initialize Variables and Initial Conditions
+   \   000014   ........     CALLA   #Init_Conditions
+    104            Time_Sequence = RESET_STATE;
+   \   000018   8243....     MOV.W   #0x0, &Time_Sequence
+    105          	Init_Timers();                       // Initialize Timers
+   \   00001C   ........     CALLA   #Init_Timers
+    106            Init_LCD();                          // Initialize LCD
+   \   000020   ........     CALLA   #Init_LCD
+    107          	Init_LEDs();
+   \   000024   ........     CALLA   #Init_LEDs
+    108          	Init_ADC();
+   \   000028   ........     CALLA   #Init_ADC
+    109          	enable_display_update();
+   \   00002C   ........     CALLA   #enable_display_update
+    110          	Init_IoT();
+   \   000030   ........     CALLA   #Init_IoT
+    111          	
+    112            display_changed = TRUE;
+   \   000034   D243....     MOV.B   #0x1, &display_changed
+    113          
+    114          //------------------------------------------------------------------------------
+    115          // Begining of the "While" Operating System
+    116          //------------------------------------------------------------------------------
+    117            while(ALWAYS) {                      // Can the Operating system run
+    118              
+    119            	Display_Process();                 // Update Display		
+   \                     ??main_0:
+   \   000038   ........     CALLA   #Display_Process
+    120              P3OUT ^= TEST_PROBE;               // Change State of TEST_PROBE OFF
+   \   00003C   D2E32202     XOR.B   #0x1, &0x222
+    121          		
+    122          		Check_Wheels();
+   \   000040   ........     CALLA   #Check_Wheels
+    123          		
+    124          		switch (runMode) {
+   \   000044   1F42....     MOV.W   &runMode, R15
+   \   000048   0F83         SUB.W   #0x0, R15
+   \   00004A   0F24         JEQ     ??main_4
+   \   00004C   1F83         SUB.W   #0x1, R15
+   \   00004E   1324         JEQ     ??main_5
+   \   000050   1F83         SUB.W   #0x1, R15
+   \   000052   1424         JEQ     ??main_6
+   \   000054   1F83         SUB.W   #0x1, R15
+   \   000056   1524         JEQ     ??main_7
+   \   000058   1F83         SUB.W   #0x1, R15
+   \   00005A   1C24         JEQ     ??main_8
+   \   00005C   1F83         SUB.W   #0x1, R15
+   \   00005E   0824         JEQ     ??main_9
+   \   000060   1F83         SUB.W   #0x1, R15
+   \   000062   1224         JEQ     ??main_10
+   \   000064   1F83         SUB.W   #0x1, R15
+   \   000066   1324         JEQ     ??main_11
+   \   000068   183C         JMP     ??main_1
+    125          		case IDLE :
+    126          			Wheels_Off();
+   \                     ??main_4:
+   \   00006A   ........     CALLA   #Wheels_Off
+    127          			break;
+   \   00006E   173C         JMP     ??main_2
+    128          		case SET_UP :
+    129          			SetUp_Seek();
+   \                     ??main_9:
+   \   000070   ........     CALLA   #SetUp_Seek
+    130          			break;
+   \   000074   143C         JMP     ??main_2
+    131          		case SEEK :
+    132          			Seek_Line();
+   \                     ??main_5:
+   \   000076   ........     CALLA   #Seek_Line
+    133          			break;
+   \   00007A   113C         JMP     ??main_2
+    134          		case ALIGN :
+    135          			Align_Line();
+   \                     ??main_6:
+   \   00007C   ........     CALLA   #Align_Line
+    136          			break;
+   \   000080   0E3C         JMP     ??main_2
+    137          		case FOLLOW :
+    138          			Follow_Line();
+   \                     ??main_7:
+   \   000082   ........     CALLA   #Follow_Line
+    139          			break;
+   \   000086   0B3C         JMP     ??main_2
+    140          		case EXIT_CIRCLE :
+    141          			Exit_Circle();
+   \                     ??main_10:
+   \   000088   ........     CALLA   #Exit_Circle
+    142          			break;
+   \   00008C   083C         JMP     ??main_2
+    143          		case STOP_COURSE :
+    144          			Stop_Course();
+   \                     ??main_11:
+   \   00008E   ........     CALLA   #Stop_Course
+    145          			break;
+   \   000092   053C         JMP     ??main_2
+    146          		case MANUAL :
+    147          			Manual_Nav();
+   \                     ??main_8:
+   \   000094   ........     CALLA   #Manual_Nav
+    148          			break;
+   \   000098   023C         JMP     ??main_2
+    149          		default : 
+    150          			Wheels_Off();
+   \                     ??main_1:
+   \   00009A   ........     CALLA   #Wheels_Off
+    151          			break;
+    152          		}
+    153          		
+    154          		if (display_menu) {
+   \                     ??main_2:
+   \   00009E   8293....     CMP.W   #0x0, &display_menu
+   \   0000A2   0424         JEQ     ??main_12
+    155          			Show_Display();
+   \   0000A4   ........     CALLA   #Show_Display
+    156          			display_menu = FALSE;
+   \   0000A8   8243....     MOV.W   #0x0, &display_menu
+    157          		}
+    158          		
+    159          		//UART 0 - Ring to Process Buffer
+    160          		int tmp0 = ring0Read;
+   \                     ??main_12:
+   \   0000AC   5A42....     MOV.B   &ring0Read, R10
+   \   0000B0   4A4A         MOV.B   R10, R10
+    161          		int tmp1 = ring1Read;
+   \   0000B2   5B42....     MOV.B   &ring1Read, R11
+   \   0000B6   4B4B         MOV.B   R11, R11
+    162          		char tmpChar;
+    163          		
+    164          		if (tmp0 != ring0Write) {
+   \   0000B8   5F42....     MOV.B   &ring0Write, R15
+   \   0000BC   4F4F         MOV.B   R15, R15
+   \   0000BE   0A9F         CMP.W   R15, R10
+   \   0000C0   5224         JEQ     ??main_3
+    165          			tmpChar = buff0Read[ring0Read];
+   \   0000C2   5F42....     MOV.B   &ring0Read, R15
+   \   0000C6   4F4F         MOV.B   R15, R15
+   \   0000C8   584F....     MOV.B   buff0Read(R15), R8
+    166          			buff0Read[ring0Read++] = 0x00;
+   \   0000CC   5F42....     MOV.B   &ring0Read, R15
+   \   0000D0   4E4F         MOV.B   R15, R14
+   \   0000D2   5E53         ADD.B   #0x1, R14
+   \   0000D4   C24E....     MOV.B   R14, &ring0Read
+   \   0000D8   4F4F         MOV.B   R15, R15
+   \   0000DA   CF43....     MOV.B   #0x0, buff0Read(R15)
+    167          			
+    168          			if (tmpChar == COM_CHAR) {
+   \   0000DE   78905E00     CMP.B   #0x5e, R8
+   \   0000E2   0520         JNE     ??main_13
+    169          				inCommand = TRUE;
+   \   0000E4   D243....     MOV.B   #0x1, &inCommand
+    170          				proc0Write = START;
+   \   0000E8   C243....     MOV.B   #0x0, &proc0Write
+   \   0000EC   3C3C         JMP     ??main_3
+    171          			} else if (inCommand && tmpChar == 0x0D) {
+   \                     ??main_13:
+   \   0000EE   C293....     CMP.B   #0x0, &inCommand
+   \   0000F2   0F24         JEQ     ??main_14
+   \   0000F4   78900D00     CMP.B   #0xd, R8
+   \   0000F8   0C20         JNE     ??main_14
+    172          				buff0Proc[proc0Write] = tmpChar;
+   \   0000FA   5F42....     MOV.B   &proc0Write, R15
+   \   0000FE   4F4F         MOV.B   R15, R15
+   \   000100   CF48....     MOV.B   R8, buff0Proc(R15)
+    173          				proc0Write = START;
+   \   000104   C243....     MOV.B   #0x0, &proc0Write
+    174          				inCommand = FALSE;
+   \   000108   C243....     MOV.B   #0x0, &inCommand
+    175          				Process_UART0_Command();
+   \   00010C   ........     CALLA   #Process_UART0_Command
+   \   000110   2A3C         JMP     ??main_3
+    176          			} else if (inCommand) {
+   \                     ??main_14:
+   \   000112   C293....     CMP.B   #0x0, &inCommand
+   \   000116   0824         JEQ     ??main_15
+    177          				buff0Proc[proc0Write++] = tmpChar;
+   \   000118   5F42....     MOV.B   &proc0Write, R15
+   \   00011C   4F4F         MOV.B   R15, R15
+   \   00011E   CF48....     MOV.B   R8, buff0Proc(R15)
+   \   000122   D253....     ADD.B   #0x1, &proc0Write
+   \   000126   1F3C         JMP     ??main_3
+    178          			} else if (tmpChar == ITTALICS && getIP == TRUE) {
+   \                     ??main_15:
+   \   000128   78902200     CMP.B   #0x22, R8
+   \   00012C   1220         JNE     ??main_16
+   \   00012E   D293....     CMP.B   #0x1, &getIP
+   \   000132   0F20         JNE     ??main_16
+    179          				if (startIP == TRUE) {
+   \   000134   D293....     CMP.B   #0x1, &startIP
+   \   000138   0720         JNE     ??main_17
+    180          					startIP = FALSE;
+   \   00013A   C243....     MOV.B   #0x0, &startIP
+    181          					getIP = FALSE;
+   \   00013E   C243....     MOV.B   #0x0, &getIP
+    182          					Parse_IP();
+   \   000142   ........     CALLA   #Parse_IP
+   \   000146   0F3C         JMP     ??main_3
+    183          				} else {
+    184          					buffIPWrite = RESET;
+   \                     ??main_17:
+   \   000148   C243....     MOV.B   #0x0, &buffIPWrite
+    185          					startIP = TRUE;
+   \   00014C   D243....     MOV.B   #0x1, &startIP
+   \   000150   0A3C         JMP     ??main_3
+    186          				}
+    187          			} else if (startIP == TRUE) {
+   \                     ??main_16:
+   \   000152   D293....     CMP.B   #0x1, &startIP
+   \   000156   0720         JNE     ??main_3
+    188          				buffIP[buffIPWrite++] = tmpChar;
+   \   000158   5F42....     MOV.B   &buffIPWrite, R15
+   \   00015C   4F4F         MOV.B   R15, R15
+   \   00015E   CF48....     MOV.B   R8, buffIP(R15)
+   \   000162   D253....     ADD.B   #0x1, &buffIPWrite
+    189          			}
+    190          		}
+    191          		//UART 1 - Ring to Process Buffer
+    192          		if (tmp1 != ring1Write) {
+   \                     ??main_3:
+   \   000166   5F42....     MOV.B   &ring1Write, R15
+   \   00016A   4F4F         MOV.B   R15, R15
+   \   00016C   0B9F         CMP.W   R15, R11
+   \   00016E   6427         JEQ     ??main_0
+    193          			tmpChar = buff1Read[ring1Read];
+   \   000170   5F42....     MOV.B   &ring1Read, R15
+   \   000174   4F4F         MOV.B   R15, R15
+   \   000176   584F....     MOV.B   buff1Read(R15), R8
+    194          			buff1Read[ring1Read++] = 0x00;
+   \   00017A   5F42....     MOV.B   &ring1Read, R15
+   \   00017E   4E4F         MOV.B   R15, R14
+   \   000180   5E53         ADD.B   #0x1, R14
+   \   000182   C24E....     MOV.B   R14, &ring1Read
+   \   000186   4F4F         MOV.B   R15, R15
+   \   000188   CF43....     MOV.B   #0x0, buff1Read(R15)
+    195          			if (ring1Read >= RNG_SIZE) 
+   \   00018C   F2903000.... CMP.B   #0x30, &ring1Read
+   \   000192   0228         JNC     ??main_18
+    196          				ring1Read = START;
+   \   000194   C243....     MOV.B   #0x0, &ring1Read
+    197          			if (txPassThrough) {
+   \                     ??main_18:
+   \   000198   C293....     CMP.B   #0x0, &txPassThrough
+   \   00019C   0424         JEQ     ??main_19
+    198          				UCA0TXBUF = tmpChar;
+   \   00019E   4848         MOV.B   R8, R8
+   \   0001A0   82480E05     MOV.W   R8, &0x50e
+   \   0001A4   493F         JMP     ??main_0
+    199          			} else {
+    200          				if (tmpChar == 0x0D) {
+   \                     ??main_19:
+   \   0001A6   78900D00     CMP.B   #0xd, R8
+   \   0001AA   0C20         JNE     ??main_20
+    201          					buff1Proc[proc1Write] = tmpChar;
+   \   0001AC   5F42....     MOV.B   &proc1Write, R15
+   \   0001B0   4F4F         MOV.B   R15, R15
+   \   0001B2   CF48....     MOV.B   R8, buff1Proc(R15)
+    202          					proc1Write = START;
+   \   0001B6   C243....     MOV.B   #0x0, &proc1Write
+    203          					Process_UART1_Command();
+   \   0001BA   ........     CALLA   #Process_UART1_Command
+    204          					txPassThrough = TRUE;
+   \   0001BE   D243....     MOV.B   #0x1, &txPassThrough
+   \   0001C2   3A3F         JMP     ??main_0
+    205          				} else {
+    206          					buff1Proc[proc1Write++] = tmpChar;
+   \                     ??main_20:
+   \   0001C4   5F42....     MOV.B   &proc1Write, R15
+   \   0001C8   4F4F         MOV.B   R15, R15
+   \   0001CA   CF48....     MOV.B   R8, buff1Proc(R15)
+   \   0001CE   D253....     ADD.B   #0x1, &proc1Write
+   \   0001D2   323F         JMP     ??main_0
+   \   0001D4   0343         NOP
+   \   0001D6                REQUIRE _A_PM5CTL0_L
+   \   0001D6                REQUIRE _A_PBOUT_L
+   \   0001D6                REQUIRE _A_UCA0TXBUF_L
+    207          				}
+    208          			}
+    209          		}
+    210          	}
+    211          }
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for check_point>`:
+   \   000000   30           DC8 48
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for port3_operation>`:
+   \   000000   0100         DC16 1
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for firstOff>`:
+   \   000000   4E           DC8 78
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for firstOn>`:
+   \   000000   4E           DC8 78
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for LCD_Menu>`:
+   \   000000   0700         DC16 7
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for LCD_Prev>`:
+   \   000000   0700         DC16 7
+    212          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   main
+        4   -> Align_Line
+        4   -> Check_Wheels
+        4   -> Display_Process
+        4   -> Exit_Circle
+        4   -> Follow_Line
+        4   -> Init_ADC
+        4   -> Init_Clocks
+        4   -> Init_Conditions
+        4   -> Init_IoT
+        4   -> Init_LCD
+        4   -> Init_LEDs
+        4   -> Init_Ports
+        4   -> Init_Serial_UCA0
+        4   -> Init_Serial_UCA1
+        4   -> Init_Timers
+        4   -> Manual_Nav
+        4   -> Parse_IP
+        4   -> Process_UART0_Command
+        4   -> Process_UART1_Command
+        4   -> Seek_Line
+        4   -> SetUp_Seek
+        4   -> Show_Display
+        4   -> Stop_Course
+        4   -> Wheels_Off
+        4   -> enable_display_update
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  ?<Initializer for LCD_Menu>
+       2  ?<Initializer for LCD_Prev>
+       1  ?<Initializer for check_point>
+       1  ?<Initializer for firstOff>
+       1  ?<Initializer for firstOn>
+       2  ?<Initializer for port3_operation>
+       2  ADC_Channel
+       2  ADC_Left
+       1  ADC_On
+       2  ADC_Right
+       2  ADC_Thumb
+       2  ADC_timer
+      10  IP1
+      10  IP2
+       2  LCD_Menu
+       2  LCD_Prev
+       2  Last_Time_Sequence
+       2  Time_Sequence
+       2  _A_PBOUT_L
+       2  _A_PM5CTL0_L
+       2  _A_UCA0TXBUF_L
+       2  align_counter
+       2  align_timer
+      48  buff0Out
+      48  buff0Proc
+      48  buff0Read
+      48  buff1Out
+      48  buff1Proc
+      48  buff1Read
+      16  buffIP
+       1  buffIPWrite
+      48  buffMsg
+       1  check_point
+       2  display_menu
+       1  exCommand
+       2  exit_counter
+       2  exit_timer
+       1  firstOff
+       1  firstOn
+       2  follow_counter
+       2  follow_timer
+       2  foundLine
+       2  found_counter
+       2  found_timer
+       1  getIP
+       1  inCommand
+     470  main
+       1  moreCommand
+      48  msg
+       2  offLeft
+       2  offRight
+       2  port3_operation
+       1  proc0Read
+       1  proc0Write
+       1  proc1Read
+       1  proc1Write
+       1  ring0Read
+       1  ring0Write
+       1  ring1Read
+       1  ring1Write
+       2  runMode
+       2  seek_counter
+       2  seek_timer
+       2  setup_counter
+       2  setup_timer
+       1  startIP
+       2  startUp_counter
+       2  startUp_timer
+       2  start_timer
+       2  time_change
+       2  total_time
+       1  txPassThrough
+       2  wait_counter
+       2  wait_timer
+       2  wheel_counter
+       2  wheel_timer
+       2  wheelsON
+
+ 
+ 470 bytes in segment CODE
+   6 bytes in segment DATA16_AN
+   9 bytes in segment DATA16_I
+   9 bytes in segment DATA16_ID
+ 504 bytes in segment DATA16_Z
+ 
+ 470 bytes of CODE  memory
+   9 bytes of CONST memory
+ 513 bytes of DATA  memory (+ 6 bytes shared)
+
+Errors: none
+Warnings: none

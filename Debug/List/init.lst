@@ -1,0 +1,559 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:05
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\init.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW8A61.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\init.c" -lC
+#        "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\Debug\List"
+#        -o "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\Debug\Obj"
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa --debug
+#        -D__MSP430FR2355__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 8.5\430\lib\dlib\dl430xlsfn.h" -I
+#        ./ --core=430X --data_model=small -On --multiplier=32
+#        --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\init.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\init.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\init.c
+      1          //------------------------------------------------------------
+      2          //  Description: Contains Initial Configurations
+      3          //  Nick Urch
+      4          //  September 15, 2022
+      5          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      6          //------------------------------------------------------------
+      7          #include "macros.h"
+      8          #include "functions.h"
+      9          #include "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x700
+   \   union <unnamed> _A_ADCCTL0_L
+   \                     _A_ADCCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x702
+   \   union <unnamed> _A_ADCCTL1_L
+   \                     _A_ADCCTL1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x704
+   \   union <unnamed> _A_ADCCTL2_L
+   \                     _A_ADCCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x70a
+   \   union <unnamed> _A_ADCMCTL0_L
+   \                     _A_ADCMCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x71a
+   \   union <unnamed> _A_ADCIE_L
+   \                     _A_ADCIE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x202
+   \   union <unnamed> _A_PAOUT_L
+   \                     _A_PAOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x500
+   \   union <unnamed> _A_UCA0CTLW0_L
+   \                     _A_UCA0CTLW0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x506
+   \   union <unnamed> _A_UCA0BRW_L
+   \                     _A_UCA0BRW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x508
+   \   union <unnamed> _A_UCA0MCTLW_L
+   \                     _A_UCA0MCTLW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51a
+   \   union <unnamed> _A_UCA0IE_L
+   \                     _A_UCA0IE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x580
+   \   union <unnamed> _A_UCA1CTLW0_L
+   \                     _A_UCA1CTLW0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x586
+   \   union <unnamed> _A_UCA1BRW_L
+   \                     _A_UCA1BRW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x588
+   \   union <unnamed> _A_UCA1MCTLW_L
+   \                     _A_UCA1MCTLW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59a
+   \   union <unnamed> _A_UCA1IE_L
+   \                     _A_UCA1IE_L:
+   \   000000                DS8 2
+     10          
+     11          extern char display_line[MAX_LCD_ROW][MAX_LCD_COL];
+     12          extern char *display[MAX_LCD_ROW];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     13          unsigned char display_mode;
+   \                     display_mode:
+   \   000000                DS8 1
+     14          extern volatile unsigned char display_changed;
+     15          extern volatile unsigned char update_display;
+     16          extern volatile unsigned int update_display_count;
+     17          extern unsigned volatile char buff0Read[RNG_SIZE];
+     18          extern unsigned volatile char buff1Read[RNG_SIZE];
+     19          extern unsigned volatile char ring0Read;
+     20          extern unsigned volatile char ring0Write;
+     21          extern unsigned volatile char ring1Read;
+     22          extern unsigned volatile char ring1Write;
+     23          extern unsigned char proc0Read;
+     24          extern unsigned char proc1Read;
+     25          extern unsigned char proc0Write;
+     26          extern unsigned char proc1Write;
+     27          extern volatile unsigned char ADC_On;
+     28          extern unsigned char txPassThrough;
+     29          extern unsigned char inCommand;
+     30          extern unsigned int startUp_timer;
+     31          extern unsigned int startUp_counter;
+     32          extern unsigned char getIP;
+     33          extern unsigned char startIP;
+     34          extern unsigned char moreCommand;
+     35          extern unsigned char exCommand;
+     36          extern char check_point;
+     37          
+
+   \                                 In  segment CODE, align 2
+     38          void Init_Conditions(void){
+   \                     Init_Conditions:
+   \   000000   0A12         PUSH.W  R10
+     39          //------------------------------------------------------------------------------
+     40          	
+     41            int i;
+     42            for(i = LCD_COL0; i < MAX_LCD_COL; i++){
+   \   000002   0A43         MOV.W   #0x0, R10
+   \                     ??Init_Conditions_0:
+   \   000004   3A900B00     CMP.W   #0xb, R10
+   \   000008   0A34         JGE     ??Init_Conditions_1
+     43              display_line[LCD_ROW0][i] = RESET_STATE;
+   \   00000A   CA43....     MOV.B   #0x0, display_line(R10)
+     44              display_line[LCD_ROW1][i] = RESET_STATE;
+   \   00000E   CA43....     MOV.B   #0x0, display_line + 11(R10)
+     45              display_line[LCD_ROW2][i] = RESET_STATE;
+   \   000012   CA43....     MOV.B   #0x0, display_line + 22(R10)
+     46              display_line[LCD_ROW3][i] = RESET_STATE;
+   \   000016   CA43....     MOV.B   #0x0, display_line + 33(R10)
+     47            }
+   \   00001A   1A53         ADD.W   #0x1, R10
+   \   00001C   F33F         JMP     ??Init_Conditions_0
+     48            display_line[LCD_ROW0][LCD_COL10] = RESET_STATE;
+   \                     ??Init_Conditions_1:
+   \   00001E   C243....     MOV.B   #0x0, &display_line
+     49            display_line[LCD_ROW1][LCD_COL10] = RESET_STATE;
+   \   000022   C243....     MOV.B   #0x0, &display_line + 11
+     50            display_line[LCD_ROW2][LCD_COL10] = RESET_STATE;
+   \   000026   C243....     MOV.B   #0x0, &display_line + 22
+     51            display_line[LCD_ROW3][LCD_COL10] = RESET_STATE;
+   \   00002A   C243....     MOV.B   #0x0, &display_line + 33
+     52          
+     53            display[LCD_ROW0] = &display_line[LCD_ROW0][LCD_COL0];
+   \   00002E   B240........ MOV.W   #display_line, &display
+     54            display[LCD_ROW1] = &display_line[LCD_ROW1][LCD_COL0];
+   \   000034   B240........ MOV.W   #display_line + 11, &display + 2
+     55            display[LCD_ROW2] = &display_line[LCD_ROW2][LCD_COL0];
+   \   00003A   B240........ MOV.W   #display_line + 22, &display + 4
+     56            display[LCD_ROW3] = &display_line[LCD_ROW3][LCD_COL0];
+   \   000040   B240........ MOV.W   #display_line + 33, &display + 6
+     57            update_display = RESET_STATE;
+   \   000046   C243....     MOV.B   #0x0, &update_display
+     58          	
+     59          	ring0Read = RESET;
+   \   00004A   C243....     MOV.B   #0x0, &ring0Read
+     60          	ring0Write = RESET;
+   \   00004E   C243....     MOV.B   #0x0, &ring0Write
+     61          	ring1Read = RESET;
+   \   000052   C243....     MOV.B   #0x0, &ring1Read
+     62          	ring1Write = RESET;
+   \   000056   C243....     MOV.B   #0x0, &ring1Write
+     63          	proc0Read = RESET;
+   \   00005A   C243....     MOV.B   #0x0, &proc0Read
+     64          	proc0Write = RESET;
+   \   00005E   C243....     MOV.B   #0x0, &proc0Write
+     65          	proc1Read = RESET;
+   \   000062   C243....     MOV.B   #0x0, &proc1Read
+     66          	proc1Write = RESET;
+   \   000066   C243....     MOV.B   #0x0, &proc1Write
+     67          	ADC_On = FALSE;
+   \   00006A   C243....     MOV.B   #0x0, &ADC_On
+     68          	txPassThrough = TRUE;
+   \   00006E   D243....     MOV.B   #0x1, &txPassThrough
+     69          	inCommand = FALSE;
+   \   000072   C243....     MOV.B   #0x0, &inCommand
+     70          	startUp_timer = FALSE;
+   \   000076   8243....     MOV.W   #0x0, &startUp_timer
+     71          	getIP = FALSE;
+   \   00007A   C243....     MOV.B   #0x0, &getIP
+     72          	startIP = FALSE;
+   \   00007E   C243....     MOV.B   #0x0, &startIP
+     73          	moreCommand = FALSE;
+   \   000082   C243....     MOV.B   #0x0, &moreCommand
+     74          	exCommand = TRUE;
+   \   000086   D243....     MOV.B   #0x1, &exCommand
+     75          	check_point = LCD_CHAR_ZERO;
+   \   00008A   F2403000.... MOV.B   #0x30, &check_point
+     76          
+     77          // Interrupts are disabled by default, enable them.
+     78            enable_interrupts();
+   \   000090   ........     CALLA   #enable_interrupts
+     79          //------------------------------------------------------------------------------
+     80          }
+   \   000094   3A41         POP.W   R10
+   \   000096   1001         RETA
+     81          
+
+   \                                 In  segment CODE, align 2
+     82          void Display_Process(void){
+   \                     Display_Process:
+     83            if(update_display){
+   \   000000   C293....     CMP.B   #0x0, &update_display
+   \   000004   0D24         JEQ     ??Display_Process_0
+     84              update_display = RESET_STATE;
+   \   000006   C243....     MOV.B   #0x0, &update_display
+     85              if(display_changed){
+   \   00000A   C293....     CMP.B   #0x0, &display_changed
+   \   00000E   0824         JEQ     ??Display_Process_0
+     86                display_changed = RESET_STATE;
+   \   000010   C243....     MOV.B   #0x0, &display_changed
+     87                Display_Update(RESET_STATE,RESET_STATE,RESET_STATE,RESET_STATE);
+   \   000014   4F43         MOV.B   #0x0, R15
+   \   000016   4E43         MOV.B   #0x0, R14
+   \   000018   4D43         MOV.B   #0x0, R13
+   \   00001A   4C43         MOV.B   #0x0, R12
+   \   00001C   ........     CALLA   #Display_Update
+     88              }
+     89            }
+     90          }
+   \                     ??Display_Process_0:
+   \   000020   1001         RETA
+     91          
+
+   \                                 In  segment CODE, align 2
+     92          void Init_LEDs(void){
+   \                     Init_LEDs:
+     93          //------------------------------------------------------------------------------
+     94          // LED Configurations
+     95          //------------------------------------------------------------------------------
+     96          // Turns off both LEDs
+     97            P1OUT &= ~RED_LED;
+   \   000000   D2C30202     BIC.B   #0x1, &0x202
+     98            P6OUT &= ~GRN_LED;
+   \   000004   F2C040004302 BIC.B   #0x40, &0x243
+     99          //------------------------------------------------------------------------------
+    100          }
+   \   00000A   1001         RETA
+   \   00000C                REQUIRE _A_PAOUT_L
+   \   00000C                REQUIRE _A_PCOUT_L
+    101          
+
+   \                                 In  segment CODE, align 2
+    102          void Init_Timers(void) {
+   \                     Init_Timers:
+    103          	Init_Timer_B0();
+   \   000000   ........     CALLA   #Init_Timer_B0
+    104          	Init_Timer_B1();
+   \   000004   ........     CALLA   #Init_Timer_B1
+    105          	Init_Timer_B3();
+   \   000008   ........     CALLA   #Init_Timer_B3
+    106          }
+   \   00000C   1001         RETA
+    107          
+    108          //ADC Init
+
+   \                                 In  segment CODE, align 2
+    109          void Init_ADC(void){
+   \                     Init_ADC:
+    110          //------------------------------------------------------------------------------
+    111          // V_DETECT_L (0x04) // Pin 2 A2
+    112          // V_DETECT_R (0x08) // Pin 3 A3
+    113          // V_THUMB (0x20) // Pin 5 A5
+    114          //------------------------------------------------------------------------------
+    115          // ADCCTL0 Register
+    116          ADCCTL0 = 0;													// Reset
+   \   000000   82430007     MOV.W   #0x0, &0x700
+    117          ADCCTL0 |= ADCSHT_2;									// 16 ADC clocks
+   \   000004   B2D000020007 BIS.W   #0x200, &0x700
+    118          ADCCTL0 |= ADCMSC;										// MSC
+   \   00000A   B2D080000007 BIS.W   #0x80, &0x700
+    119          ADCCTL0 |= ADCON;										// ADC ON
+   \   000010   B2D010000007 BIS.W   #0x10, &0x700
+    120          // ADCCTL1 Register
+    121          ADCCTL2 = 0;													// Reset
+   \   000016   82430407     MOV.W   #0x0, &0x704
+    122          ADCCTL1 |= ADCSHS_0; 									// 00b = ADCSC bit
+   \   00001A   924202070207 MOV.W   &0x702, &0x702
+    123          ADCCTL1 |= ADCSHP;										// ADC sample-and-hold SAMPCON signal from sampling timer.
+   \   000020   B2D000020207 BIS.W   #0x200, &0x702
+    124          ADCCTL1 &= ~ADCISSH; 									// ADC invert signal sample-and-hold.
+   \   000026   B2C000010207 BIC.W   #0x100, &0x702
+    125          ADCCTL1 |= ADCDIV_0; 									// ADC clock divider - 000b = Divide by 1
+   \   00002C   924202070207 MOV.W   &0x702, &0x702
+    126          ADCCTL1 |= ADCSSEL_0;									// ADC clock MODCLK
+   \   000032   924202070207 MOV.W   &0x702, &0x702
+    127          ADCCTL1 |= ADCCONSEQ_0;							// ADC conversion sequence 00b = Single-channel single-conversion
+   \   000038   924202070207 MOV.W   &0x702, &0x702
+    128          // ADCCTL1 & ADCBUSY identifies a conversion is in process
+    129          // ADCCTL2 Register
+    130          ADCCTL2 = 0; // Reset
+   \   00003E   82430407     MOV.W   #0x0, &0x704
+    131          ADCCTL2 |= ADCPDIV0; 								// ADC pre-divider 00b = Pre-divide by 1
+   \   000042   B2D000010407 BIS.W   #0x100, &0x704
+    132          ADCCTL2 |= ADCRES_2; 								// ADC resolution 10b = 12 bit (14 clock cycle conversion time)
+   \   000048   B2D020000407 BIS.W   #0x20, &0x704
+    133          ADCCTL2 &= ~ADCDF; 									// ADC data read-back format 0b = Binary unsigned.
+   \   00004E   B2C20407     BIC.W   #0x8, &0x704
+    134          ADCCTL2 &= ~ADCSR; 									// ADC sampling rate 0b = ADC buffer supports up to 200 ksps
+   \   000052   A2C20407     BIC.W   #0x4, &0x704
+    135          // ADCMCTL0 Register
+    136          ADCMCTL0 |= ADCSREF_0; 							// VREF - 000b = {VR+ = AVCC and VR– = AVSS }
+   \   000056   92420A070A07 MOV.W   &0x70a, &0x70a
+    137          ADCMCTL0 |= ADCINCH_2; 							// V_LEFT
+   \   00005C   A2D30A07     BIS.W   #0x2, &0x70a
+    138          ADCIE |= ADCIE0; 										// Enable ADC conv complete interrupt
+   \   000060   92D31A07     BIS.W   #0x1, &0x71a
+    139          ADCCTL0 &= ~ADCENC; 									// ADC enable conversion.
+   \   000064   A2C30007     BIC.W   #0x2, &0x700
+    140          ADCCTL0 &= ~ADCSC; 										// ADC start conversion.
+   \   000068   92C30007     BIC.W   #0x1, &0x700
+    141          }
+   \   00006C   1001         RETA
+   \   00006E                REQUIRE _A_ADCCTL0_L
+   \   00006E                REQUIRE _A_ADCCTL2_L
+   \   00006E                REQUIRE _A_ADCCTL1_L
+   \   00006E                REQUIRE _A_ADCMCTL0_L
+   \   00006E                REQUIRE _A_ADCIE_L
+    142          
+    143          //Serial Comm UART 0 INIT
+
+   \                                 In  segment CODE, align 2
+    144          void Init_Serial_UCA0(void) {
+   \                     Init_Serial_UCA0:
+    145          	for (int i = 0; i < RNG_SIZE; i++) {
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Init_Serial_UCA0_0:
+   \   000002   3F903000     CMP.W   #0x30, R15
+   \   000006   0434         JGE     ??Init_Serial_UCA0_1
+    146          		buff0Read[i] = ZERO_BIT;
+   \   000008   CF43....     MOV.B   #0x0, buff0Read(R15)
+    147          	}
+   \   00000C   1F53         ADD.W   #0x1, R15
+   \   00000E   F93F         JMP     ??Init_Serial_UCA0_0
+    148          	ring0Read = START;
+   \                     ??Init_Serial_UCA0_1:
+   \   000010   C243....     MOV.B   #0x0, &ring0Read
+    149          	ring0Write = START;
+   \   000014   C243....     MOV.B   #0x0, &ring0Write
+    150          	
+    151          	UCA0CTLW0 = 0;
+   \   000018   82430005     MOV.W   #0x0, &0x500
+    152          	UCA0CTLW0 |= UCSWRST;
+   \   00001C   92D30005     BIS.W   #0x1, &0x500
+    153          	UCA0CTLW0 |= UCSSEL__SMCLK;
+   \   000020   B2D080000005 BIS.W   #0x80, &0x500
+    154          	UCA0CTLW0 &= ~UCMSB;
+   \   000026   B2C000200005 BIC.W   #0x2000, &0x500
+    155          	UCA0CTLW0 &= ~UCSPB;
+   \   00002C   B2C000080005 BIC.W   #0x800, &0x500
+    156          	UCA0CTLW0 &= ~UCPEN;
+   \   000032   B2C000800005 BIC.W   #0x8000, &0x500
+    157          	UCA0CTLW0 &= ~UCSYNC;
+   \   000038   B2C000010005 BIC.W   #0x100, &0x500
+    158          	UCA0CTLW0 &= ~UC7BIT;
+   \   00003E   B2C000100005 BIC.W   #0x1000, &0x500
+    159          	UCA0CTLW0 |= UCMODE_0;
+   \   000044   924200050005 MOV.W   &0x500, &0x500
+    160          	UCA0BRW = 4;
+   \   00004A   A2420605     MOV.W   #0x4, &0x506
+    161          	UCA0MCTLW = 0x5551;
+   \   00004E   B24051550805 MOV.W   #0x5551, &0x508
+    162          	UCA0CTLW0 &= ~UCSWRST;
+   \   000054   92C30005     BIC.W   #0x1, &0x500
+    163          	UCA0TXBUF = 0x00;
+   \   000058   82430E05     MOV.W   #0x0, &0x50e
+    164          	UCA0IE |= UCRXIE;
+   \   00005C   92D31A05     BIS.W   #0x1, &0x51a
+    165          }
+   \   000060   1001         RETA
+   \   000062                REQUIRE _A_UCA0CTLW0_L
+   \   000062                REQUIRE _A_UCA0BRW_L
+   \   000062                REQUIRE _A_UCA0MCTLW_L
+   \   000062                REQUIRE _A_UCA0TXBUF_L
+   \   000062                REQUIRE _A_UCA0IE_L
+    166          
+    167          //UART 1 INIT
+
+   \                                 In  segment CODE, align 2
+    168          void Init_Serial_UCA1(void) {
+   \                     Init_Serial_UCA1:
+    169          	for (int i = 0; i < RNG_SIZE; i++) {
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Init_Serial_UCA1_0:
+   \   000002   3F903000     CMP.W   #0x30, R15
+   \   000006   0434         JGE     ??Init_Serial_UCA1_1
+    170          		buff1Read[i] = ZERO_BIT;
+   \   000008   CF43....     MOV.B   #0x0, buff1Read(R15)
+    171          	}
+   \   00000C   1F53         ADD.W   #0x1, R15
+   \   00000E   F93F         JMP     ??Init_Serial_UCA1_0
+    172          	ring1Read = START;
+   \                     ??Init_Serial_UCA1_1:
+   \   000010   C243....     MOV.B   #0x0, &ring1Read
+    173          	ring1Write = START;
+   \   000014   C243....     MOV.B   #0x0, &ring1Write
+    174          	
+    175          	UCA1CTLW0 = 0;
+   \   000018   82438005     MOV.W   #0x0, &0x580
+    176          	UCA1CTLW0 |= UCSWRST;
+   \   00001C   92D38005     BIS.W   #0x1, &0x580
+    177          	UCA1CTLW0 |= UCSSEL__SMCLK;
+   \   000020   B2D080008005 BIS.W   #0x80, &0x580
+    178          	UCA1CTLW0 &= ~UCMSB;
+   \   000026   B2C000208005 BIC.W   #0x2000, &0x580
+    179          	UCA1CTLW0 &= ~UCSPB;
+   \   00002C   B2C000088005 BIC.W   #0x800, &0x580
+    180          	UCA1CTLW0 &= ~UCPEN;
+   \   000032   B2C000808005 BIC.W   #0x8000, &0x580
+    181          	UCA1CTLW0 &= ~UCSYNC;
+   \   000038   B2C000018005 BIC.W   #0x100, &0x580
+    182          	UCA1CTLW0 &= ~UC7BIT;
+   \   00003E   B2C000108005 BIC.W   #0x1000, &0x580
+    183          	UCA1CTLW0 |= UCMODE_0;
+   \   000044   924280058005 MOV.W   &0x580, &0x580
+    184          	UCA1BRW = 4;
+   \   00004A   A2428605     MOV.W   #0x4, &0x586
+    185          	UCA1MCTLW = 0x5551;
+   \   00004E   B24051558805 MOV.W   #0x5551, &0x588
+    186          	UCA1CTLW0 &= ~UCSWRST;
+   \   000054   92C38005     BIC.W   #0x1, &0x580
+    187          	UCA1TXBUF = 0x00;
+   \   000058   82438E05     MOV.W   #0x0, &0x58e
+    188          	UCA1IE |= UCRXIE;
+   \   00005C   92D39A05     BIS.W   #0x1, &0x59a
+    189          }
+   \   000060   1001         RETA
+   \   000062                REQUIRE _A_UCA1CTLW0_L
+   \   000062                REQUIRE _A_UCA1BRW_L
+   \   000062                REQUIRE _A_UCA1MCTLW_L
+   \   000062                REQUIRE _A_UCA1TXBUF_L
+   \   000062                REQUIRE _A_UCA1IE_L
+    190          
+
+   \                                 In  segment CODE, align 2
+    191          void Init_IoT(void) {
+   \                     Init_IoT:
+    192          	startUp_counter = RESET;
+   \   000000   8243....     MOV.W   #0x0, &startUp_counter
+    193          	startUp_timer = TRUE;
+   \   000004   9243....     MOV.W   #0x1, &startUp_timer
+    194          }
+   \   000008   1001         RETA
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Display_Process
+        4   -> Display_Update
+      4   Init_ADC
+      6   Init_Conditions
+        6   -> enable_interrupts
+      4   Init_IoT
+      4   Init_LEDs
+      4   Init_Serial_UCA0
+      4   Init_Serial_UCA1
+      4   Init_Timers
+        4   -> Init_Timer_B0
+        4   -> Init_Timer_B1
+        4   -> Init_Timer_B3
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      34  Display_Process
+     110  Init_ADC
+     152  Init_Conditions
+      10  Init_IoT
+      12  Init_LEDs
+      98  Init_Serial_UCA0
+      98  Init_Serial_UCA1
+      14  Init_Timers
+       2  _A_ADCCTL0_L
+       2  _A_ADCCTL1_L
+       2  _A_ADCCTL2_L
+       2  _A_ADCIE_L
+       2  _A_ADCMCTL0_L
+       2  _A_PAOUT_L
+       2  _A_PCOUT_L
+       2  _A_UCA0BRW_L
+       2  _A_UCA0CTLW0_L
+       2  _A_UCA0IE_L
+       2  _A_UCA0MCTLW_L
+       2  _A_UCA0TXBUF_L
+       2  _A_UCA1BRW_L
+       2  _A_UCA1CTLW0_L
+       2  _A_UCA1IE_L
+       2  _A_UCA1MCTLW_L
+       2  _A_UCA1TXBUF_L
+       1  display_mode
+
+ 
+ 528 bytes in segment CODE
+  34 bytes in segment DATA16_AN
+   1 byte  in segment DATA16_Z
+ 
+ 528 bytes of CODE memory
+   1 byte  of DATA memory (+ 34 bytes shared)
+
+Errors: none
+Warnings: none

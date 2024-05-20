@@ -1,0 +1,9 @@
+run_mode.pbi: \
+  C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE\ 306\Project\ 10\run_mode.c \
+  C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE\ 306\Project\ 10/functions.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.5\430\inc\msp430.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.5\430\inc/msp430fr2355.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.5\430\inc/in430.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.5\430\inc/intrinsics.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.5\430\inc/legacy.h \
+  C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE\ 306\Project\ 10/macros.h
