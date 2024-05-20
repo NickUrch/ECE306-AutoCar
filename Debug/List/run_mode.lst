@@ -1,0 +1,745 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:05
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\run_mode.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW8EAA.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\run_mode.c"
+#        -lC "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List" -o "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE
+#        306\Project 10\Debug\Obj" --no_cse --no_unroll --no_inline
+#        --no_code_motion --no_tbaa --debug -D__MSP430FR2355__ -e --double=32
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.5\430\lib\dlib\dl430xlsfn.h" -I ./ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\run_mode.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\run_mode.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\run_mode.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the MaRun Mode State Machines
+      4          //	Nick Urch
+      5          //  October 14 2022
+      6          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      7          //------------------------------------------------------------------------------
+      8          
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x700
+   \   union <unnamed> _A_ADCCTL0_L
+   \                     _A_ADCCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x202
+   \   union <unnamed> _A_PAOUT_L
+   \                     _A_PAOUT_L:
+   \   000000                DS8 2
+     13          #include "macros.h"
+     14          
+     15          extern volatile unsigned int ADC_Left;
+     16          extern volatile unsigned int ADC_Right;
+     17          extern unsigned int offRight;
+     18          extern unsigned int offLeft;
+     19          extern unsigned int foundLine;
+     20          extern volatile signed int delta;
+     21          extern unsigned int wait_timer;
+     22          extern unsigned int wait_counter;
+     23          extern unsigned int seek_timer;
+     24          extern unsigned int seek_counter;
+     25          extern unsigned int found_timer;
+     26          extern unsigned int found_counter;
+     27          extern unsigned int setup_timer;
+     28          extern unsigned int setup_counter;
+     29          extern unsigned int align_timer;
+     30          extern unsigned int align_counter;
+     31          extern unsigned int follow_timer;
+     32          extern unsigned int follow_counter;
+     33          extern unsigned int exit_counter;
+     34          extern unsigned int exit_timer;
+     35          extern unsigned int start_timer;
+     36          extern unsigned int total_time;
+     37          extern unsigned int LCD_Menu;
+     38          extern unsigned int runMode;
+     39          extern unsigned char firstOff;
+     40          extern unsigned char firstOn;
+     41          extern unsigned int wheel_timer;
+     42          extern unsigned int wheel_counter;
+     43          extern unsigned int wheelsON;
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     44          unsigned char onWhite;
+   \                     onWhite:
+   \   000000                DS8 1
+     45          extern char msg[PROC_SIZE];
+     46          
+     47          //Set up the vehicle for Black Line Follow
+
+   \                                 In  segment CODE, align 2
+     48          void SetUp_Seek(void){
+   \                     SetUp_Seek:
+     49          	LCD_Menu = LCD_START;
+   \   000000   B2401500.... MOV.W   #0x15, &LCD_Menu
+     50          	//Forward
+     51          	if (setup_counter > WAIT_TIME_0 && setup_counter <= WAIT_TIME_25)
+   \   000006   8293....     CMP.W   #0x0, &setup_counter
+   \   00000A   0924         JEQ     ??SetUp_Seek_0
+   \   00000C   B2901A00.... CMP.W   #0x1a, &setup_counter
+   \   000012   052C         JC      ??SetUp_Seek_0
+     52          		Run_Forward(WHEEL_SLOW);
+   \   000014   3C401027     MOV.W   #0x2710, R12
+   \   000018   ........     CALLA   #Run_Forward
+   \   00001C   1001         RETA
+     53          	//Turn Left
+     54          	else if (setup_counter > WAIT_TIME_25 && setup_counter <= WAIT_TIME_40)
+   \                     ??SetUp_Seek_0:
+   \   00001E   B2901A00.... CMP.W   #0x1a, &setup_counter
+   \   000024   0B28         JNC     ??SetUp_Seek_1
+   \   000026   B2902900.... CMP.W   #0x29, &setup_counter
+   \   00002C   072C         JC      ??SetUp_Seek_1
+     55          		Forward_Turn(WHEEL_CRAWL, WHEEL_SLOW);
+   \   00002E   3D401027     MOV.W   #0x2710, R13
+   \   000032   3C406419     MOV.W   #0x1964, R12
+   \   000036   ........     CALLA   #Forward_Turn
+   \   00003A   1001         RETA
+     56          	else if (setup_counter > WAIT_TIME_40) {
+   \                     ??SetUp_Seek_1:
+   \   00003C   B2902900.... CMP.W   #0x29, &setup_counter
+   \   000042   1028         JNC     ??SetUp_Seek_2
+     57          		Wheels_Off();
+   \   000044   ........     CALLA   #Wheels_Off
+     58          		setup_timer = FALSE;
+   \   000048   8243....     MOV.W   #0x0, &setup_timer
+     59          		ADCCTL0 |= ADCENC;
+   \   00004C   A2D30007     BIS.W   #0x2, &0x700
+     60          		ADCCTL0 |= ADCSC;
+   \   000050   92D30007     BIS.W   #0x1, &0x700
+     61          		P2OUT |= IR_LED;
+   \   000054   E2D20302     BIS.B   #0x4, &0x203
+     62          		seek_timer = TRUE;
+   \   000058   9243....     MOV.W   #0x1, &seek_timer
+     63          		seek_counter = RESET;
+   \   00005C   8243....     MOV.W   #0x0, &seek_counter
+     64          		onWhite = FALSE;
+   \   000060   C243....     MOV.B   #0x0, &onWhite
+     65          	}
+     66          }
+   \                     ??SetUp_Seek_2:
+   \   000064   1001         RETA
+   \   000066                REQUIRE _A_ADCCTL0_L
+   \   000066                REQUIRE _A_PAOUT_L
+     67          
+
+   \                                 In  segment CODE, align 2
+     68          void Seek_Line(void) {
+   \                     Seek_Line:
+     69          	if (seek_counter > WAIT_TIME_0 && seek_counter <= WAIT_TIME_50) {
+   \   000000   8293....     CMP.W   #0x0, &seek_counter
+   \   000004   0824         JEQ     ??Seek_Line_1
+   \   000006   B2903300.... CMP.W   #0x33, &seek_counter
+   \   00000C   042C         JC      ??Seek_Line_1
+     70          		LCD_Menu = LCD_SEEK;
+   \   00000E   B2400E00.... MOV.W   #0xe, &LCD_Menu
+   \   000014   1001         RETA
+     71          	} else if (seek_counter > WAIT_TIME_50 && seek_counter <= WAIT_TIME_150) {
+   \                     ??Seek_Line_1:
+   \   000016   B2903300.... CMP.W   #0x33, &seek_counter
+   \   00001C   4428         JNC     ??Seek_Line_2
+   \   00001E   B2909700.... CMP.W   #0x97, &seek_counter
+   \   000024   402C         JC      ??Seek_Line_2
+     72          		LCD_Menu = LCD_ADC;
+   \   000026   9243....     MOV.W   #0x1, &LCD_Menu
+     73          		Check_ADC();
+   \   00002A   ........     CALLA   #Check_ADC
+     74          		Run_Forward(WHEEL_VSLOW);
+   \   00002E   3C404C1D     MOV.W   #0x1d4c, R12
+   \   000032   ........     CALLA   #Run_Forward
+     75          		//If on the white board, allow for black line find.
+     76          		if (onWhite) {
+   \   000036   C293....     CMP.B   #0x0, &onWhite
+   \   00003A   4224         JEQ     ??Seek_Line_3
+     77          			if (!foundLine && !wait_timer) {
+   \   00003C   8293....     CMP.W   #0x0, &foundLine
+   \   000040   2120         JNE     ??Seek_Line_4
+   \   000042   8293....     CMP.W   #0x0, &wait_timer
+   \   000046   1E20         JNE     ??Seek_Line_4
+     78          				if (offLeft && offRight) {
+   \   000048   8293....     CMP.W   #0x0, &offLeft
+   \   00004C   0824         JEQ     ??Seek_Line_5
+   \   00004E   8293....     CMP.W   #0x0, &offRight
+   \   000052   0524         JEQ     ??Seek_Line_5
+     79          					Run_Forward(WHEEL_VSLOW);
+   \   000054   3C404C1D     MOV.W   #0x1d4c, R12
+   \   000058   ........     CALLA   #Run_Forward
+   \   00005C   1001         RETA
+     80          				} else if (!offLeft || !offRight) {
+   \                     ??Seek_Line_5:
+   \   00005E   8293....     CMP.W   #0x0, &offLeft
+   \   000062   0324         JEQ     ??Seek_Line_6
+   \   000064   8293....     CMP.W   #0x0, &offRight
+   \   000068   2B20         JNE     ??Seek_Line_3
+     81          					if (!offLeft) {
+   \                     ??Seek_Line_6:
+   \   00006A   8293....     CMP.W   #0x0, &offLeft
+   \   00006E   0420         JNE     ??Seek_Line_7
+     82          						firstOn = LEFT;
+   \   000070   F2404C00.... MOV.B   #0x4c, &firstOn
+   \   000076   033C         JMP     ??Seek_Line_0
+     83          					} else {
+     84          						firstOn = RIGHT;
+   \                     ??Seek_Line_7:
+   \   000078   F2405200.... MOV.B   #0x52, &firstOn
+     85          					}
+     86          					foundLine = TRUE;
+   \                     ??Seek_Line_0:
+   \   00007E   9243....     MOV.W   #0x1, &foundLine
+   \   000082   1001         RETA
+     87          				}
+     88          			} else if (foundLine) {
+   \                     ??Seek_Line_4:
+   \   000084   8293....     CMP.W   #0x0, &foundLine
+   \   000088   1B24         JEQ     ??Seek_Line_3
+     89          				//Found Black Line, allow for Align
+     90          				Wheels_Off();
+   \   00008A   ........     CALLA   #Wheels_Off
+     91          				runMode = IDLE;
+   \   00008E   8243....     MOV.W   #0x0, &runMode
+     92          				LCD_Menu = LCD_FOUND;
+   \   000092   B2400500.... MOV.W   #0x5, &LCD_Menu
+     93          				seek_timer = FALSE;
+   \   000098   8243....     MOV.W   #0x0, &seek_timer
+     94          				found_timer = TRUE;
+   \   00009C   9243....     MOV.W   #0x1, &found_timer
+     95          				found_counter = RESET;
+   \   0000A0   8243....     MOV.W   #0x0, &found_counter
+   \   0000A4   1001         RETA
+     96          			}
+     97          		}
+     98          	} else if (seek_counter > WAIT_TIME_150) {
+   \                     ??Seek_Line_2:
+   \   0000A6   B2909700.... CMP.W   #0x97, &seek_counter
+   \   0000AC   0928         JNC     ??Seek_Line_3
+     99          		runMode = IDLE;
+   \   0000AE   8243....     MOV.W   #0x0, &runMode
+    100          		Wheels_Off();
+   \   0000B2   ........     CALLA   #Wheels_Off
+    101          		LCD_Menu = LCD_IP;
+   \   0000B6   B2400C00.... MOV.W   #0xc, &LCD_Menu
+    102          		seek_timer = FALSE;
+   \   0000BC   8243....     MOV.W   #0x0, &seek_timer
+    103          	}
+    104          }
+   \                     ??Seek_Line_3:
+   \   0000C0   1001         RETA
+    105          
+    106          //Align the vehicle to the Black Line
+
+   \                                 In  segment CODE, align 2
+    107          void Align_Line(void) {
+   \                     Align_Line:
+    108          	LCD_Menu = LCD_ALIGN;
+   \   000000   B2401600.... MOV.W   #0x16, &LCD_Menu
+    109          	Check_ADC();
+   \   000006   ........     CALLA   #Check_ADC
+    110          
+    111          	Zero_Point_Right(WHEEL_VSLOW);
+   \   00000A   3C404C1D     MOV.W   #0x1d4c, R12
+   \   00000E   ........     CALLA   #Zero_Point_Right
+    112          
+    113          	if (!offLeft && !offRight) {
+   \   000012   8293....     CMP.W   #0x0, &offLeft
+   \   000016   0D20         JNE     ??Align_Line_0
+   \   000018   8293....     CMP.W   #0x0, &offRight
+   \   00001C   0A20         JNE     ??Align_Line_0
+    114          		runMode = IDLE;
+   \   00001E   8243....     MOV.W   #0x0, &runMode
+    115          		Wheels_Off();
+   \   000022   ........     CALLA   #Wheels_Off
+    116          		align_timer = FALSE;
+   \   000026   8243....     MOV.W   #0x0, &align_timer
+    117          		follow_counter = RESET;
+   \   00002A   8243....     MOV.W   #0x0, &follow_counter
+    118          		follow_timer = TRUE;
+   \   00002E   9243....     MOV.W   #0x1, &follow_timer
+    119          	}
+    120          }
+   \                     ??Align_Line_0:
+   \   000032   1001         RETA
+    121          
+    122          //Follow the Black Line. Bang Bang Method.
+
+   \                                 In  segment CODE, align 2
+    123          void Follow_Line(void) {
+   \                     Follow_Line:
+    124          	if (follow_counter <= WAIT_TIME_50) {
+   \   000000   B2903300.... CMP.W   #0x33, &follow_counter
+   \   000006   042C         JC      ??Follow_Line_1
+    125          		LCD_Menu = LCD_ALIGN;
+   \   000008   B2401600.... MOV.W   #0x16, &LCD_Menu
+   \   00000E   1001         RETA
+    126          	} else if (follow_counter > WAIT_TIME_50) {
+   \                     ??Follow_Line_1:
+   \   000010   B2903300.... CMP.W   #0x33, &follow_counter
+   \   000016   2928         JNC     ??Follow_Line_2
+    127          		if (follow_counter < WAIT_TIME_100)
+   \   000018   B2906400.... CMP.W   #0x64, &follow_counter
+   \   00001E   042C         JC      ??Follow_Line_3
+    128          			LCD_Menu = LCD_FOLLOW;
+   \   000020   B2401000.... MOV.W   #0x10, &LCD_Menu
+   \   000026   033C         JMP     ??Follow_Line_0
+    129          		else
+    130          			LCD_Menu = LCD_CIRCLE;
+   \                     ??Follow_Line_3:
+   \   000028   B2401400.... MOV.W   #0x14, &LCD_Menu
+    131          		
+    132          		//Check ADC if off Left, turn right/ if off Right, turn Left
+    133          		Check_ADC();
+   \                     ??Follow_Line_0:
+   \   00002E   ........     CALLA   #Check_ADC
+    134          		if (!offLeft && !offRight)
+   \   000032   8293....     CMP.W   #0x0, &offLeft
+   \   000036   0820         JNE     ??Follow_Line_4
+   \   000038   8293....     CMP.W   #0x0, &offRight
+   \   00003C   0520         JNE     ??Follow_Line_4
+    135          			Run_Forward(WHEEL_VSLOW);
+   \   00003E   3C404C1D     MOV.W   #0x1d4c, R12
+   \   000042   ........     CALLA   #Run_Forward
+   \   000046   1001         RETA
+    136          		else if (offLeft)
+   \                     ??Follow_Line_4:
+   \   000048   8293....     CMP.W   #0x0, &offLeft
+   \   00004C   0624         JEQ     ??Follow_Line_5
+    137          			Forward_Turn(WHEEL_VSLOW, WHEEL_OFF);
+   \   00004E   0D43         MOV.W   #0x0, R13
+   \   000050   3C404C1D     MOV.W   #0x1d4c, R12
+   \   000054   ........     CALLA   #Forward_Turn
+   \   000058   1001         RETA
+    138          		else if (offRight)
+   \                     ??Follow_Line_5:
+   \   00005A   8293....     CMP.W   #0x0, &offRight
+   \   00005E   0524         JEQ     ??Follow_Line_2
+    139          			Forward_Turn(WHEEL_OFF, WHEEL_VSLOW);
+   \   000060   3D404C1D     MOV.W   #0x1d4c, R13
+   \   000064   0C43         MOV.W   #0x0, R12
+   \   000066   ........     CALLA   #Forward_Turn
+    140          	}
+    141          }
+   \                     ??Follow_Line_2:
+   \   00006A   1001         RETA
+    142          
+    143          //Exit the Circle
+
+   \                                 In  segment CODE, align 2
+    144          void Exit_Circle(void) {
+   \                     Exit_Circle:
+    145          	LCD_Menu = LCD_EXIT;
+   \   000000   B2401100.... MOV.W   #0x11, &LCD_Menu
+    146          	if (exit_counter <= WAIT_TIME_50) {
+   \   000006   B2903300.... CMP.W   #0x33, &exit_counter
+   \   00000C   062C         JC      ??Exit_Circle_0
+    147          		Wheels_Off();
+   \   00000E   ........     CALLA   #Wheels_Off
+    148          		LCD_Menu = LCD_EXIT;
+   \   000012   B2401100.... MOV.W   #0x11, &LCD_Menu
+   \   000018   1001         RETA
+    149          	} else if (exit_counter > WAIT_TIME_50 && exit_counter <= WAIT_TIME_60) {
+   \                     ??Exit_Circle_0:
+   \   00001A   B2903300.... CMP.W   #0x33, &exit_counter
+   \   000020   0A28         JNC     ??Exit_Circle_1
+   \   000022   B2903D00.... CMP.W   #0x3d, &exit_counter
+   \   000028   062C         JC      ??Exit_Circle_1
+    150          		Forward_Turn(WHEEL_OFF, WHEEL_SLOW);
+   \   00002A   3D401027     MOV.W   #0x2710, R13
+   \   00002E   0C43         MOV.W   #0x0, R12
+   \   000030   ........     CALLA   #Forward_Turn
+   \   000034   1001         RETA
+    151          	} else if (exit_counter > WAIT_TIME_60 && exit_counter <= WAIT_TIME_75) {
+   \                     ??Exit_Circle_1:
+   \   000036   B2903D00.... CMP.W   #0x3d, &exit_counter
+   \   00003C   0928         JNC     ??Exit_Circle_2
+   \   00003E   B2904C00.... CMP.W   #0x4c, &exit_counter
+   \   000044   052C         JC      ??Exit_Circle_2
+    152          		Run_Forward(WHEEL_SLOW);
+   \   000046   3C401027     MOV.W   #0x2710, R12
+   \   00004A   ........     CALLA   #Run_Forward
+   \   00004E   1001         RETA
+    153          	} else if (exit_counter > WAIT_TIME_75) {
+   \                     ??Exit_Circle_2:
+   \   000050   B2904C00.... CMP.W   #0x4c, &exit_counter
+   \   000056   0728         JNC     ??Exit_Circle_3
+    154          		exit_timer = FALSE;
+   \   000058   8243....     MOV.W   #0x0, &exit_timer
+    155          		Wheels_Off();
+   \   00005C   ........     CALLA   #Wheels_Off
+    156          		runMode = STOP_COURSE;
+   \   000060   B2400700.... MOV.W   #0x7, &runMode
+    157          	}
+    158          }
+   \                     ??Exit_Circle_3:
+   \   000066   1001         RETA
+    159          
+    160          //Course Finished! Update Display to TA
+
+   \                                 In  segment CODE, align 2
+    161          void Stop_Course() {
+   \                     Stop_Course:
+    162          	LCD_Menu = LCD_STOP;
+   \   000000   B2401200.... MOV.W   #0x12, &LCD_Menu
+    163          	runMode = IDLE;
+   \   000006   8243....     MOV.W   #0x0, &runMode
+    164          	ADCCTL0 &= ~ADCENC;
+   \   00000A   A2C30007     BIC.W   #0x2, &0x700
+    165          	ADCCTL0 &= ~ADCSC;
+   \   00000E   92C30007     BIC.W   #0x1, &0x700
+    166          	P2OUT &= ~IR_LED;
+   \   000012   E2C20302     BIC.B   #0x4, &0x203
+    167          }
+   \   000016   1001         RETA
+   \   000018                REQUIRE _A_ADCCTL0_L
+   \   000018                REQUIRE _A_PAOUT_L
+    168          
+    169          //Manual Navigation Mode
+
+   \                                 In  segment CODE, align 2
+    170          void Manual_Nav(void) {
+   \                     Manual_Nav:
+   \   000000   3B15         PUSHM.W #0x4, R11
+    171          	LCD_Menu = LCD_CMD;
+   \   000002   B2400D00.... MOV.W   #0xd, &LCD_Menu
+    172          	if (!start_timer) {
+   \   000008   8293....     CMP.W   #0x0, &start_timer
+   \   00000C   0420         JNE     ??Manual_Nav_6
+    173          		start_timer = TRUE;
+   \   00000E   9243....     MOV.W   #0x1, &start_timer
+    174          		total_time = RESET;
+   \   000012   8243....     MOV.W   #0x0, &total_time
+    175          	}
+    176          	char cmd = msg[COM_NUM];
+   \                     ??Manual_Nav_6:
+   \   000016   5B42....     MOV.B   &msg + 2, R11
+    177          	char speed = msg[COM_SPEED];
+   \   00001A   5842....     MOV.B   &msg + 3, R8
+    178          	char time = msg[COM_TIME];
+   \   00001E   5A42....     MOV.B   &msg + 4, R10
+    179          	if (!wheel_timer) {
+   \   000022   8293....     CMP.W   #0x0, &wheel_timer
+   \   000026   0C20         JNE     ??Manual_Nav_7
+    180          		wheel_timer = TRUE;
+   \   000028   9243....     MOV.W   #0x1, &wheel_timer
+    181          		wheel_counter = RESET;
+   \   00002C   8243....     MOV.W   #0x0, &wheel_counter
+    182          		wheelsON = (time - ASCII_OFFSET) * TIMER_MULTIPLIER;
+   \   000030   4F4A         MOV.B   R10, R15
+   \   000032   3F50D0FF     ADD.W   #0xffd0, R15
+   \   000036   0E4F         MOV.W   R15, R14
+   \   000038   5F06         RLAM.W  #0x2, R15
+   \   00003A   0F5E         ADD.W   R14, R15
+   \   00003C   824F....     MOV.W   R15, &wheelsON
+    183          	}
+    184          	switch (cmd) {
+   \                     ??Manual_Nav_7:
+   \   000040   4E4B         MOV.B   R11, R14
+   \   000042   7E804200     SUB.B   #0x42, R14
+   \   000046   2324         JEQ     ??Manual_Nav_8
+   \   000048   6E82         SUB.B   #0x4, R14
+   \   00004A   0924         JEQ     ??Manual_Nav_9
+   \   00004C   7E800600     SUB.B   #0x6, R14
+   \   000050   3624         JEQ     ??Manual_Nav_10
+   \   000052   7E800600     SUB.B   #0x6, R14
+   \   000056   5024         JEQ     ??Manual_Nav_11
+   \   000058   7E82         SUB.B   #0x8, R14
+   \   00005A   6B24         JEQ     ??Manual_Nav_12
+   \   00005C   793C         JMP     ??Manual_Nav_5
+    185          	case COM_FORWARD :
+    186          		if (speed == COM_FAST)
+   \                     ??Manual_Nav_9:
+   \   00005E   78904600     CMP.B   #0x46, R8
+   \   000062   0520         JNE     ??Manual_Nav_13
+    187          			Run_Forward(WHEEL_FAST);
+   \   000064   3C40B888     MOV.W   #0x88b8, R12
+   \   000068   ........     CALLA   #Run_Forward
+   \   00006C   713C         JMP     ??Manual_Nav_5
+    188          		else if (speed == COM_HALF)
+   \                     ??Manual_Nav_13:
+   \   00006E   78904800     CMP.B   #0x48, R8
+   \   000072   0520         JNE     ??Manual_Nav_14
+    189          			Run_Forward(WHEEL_HALF);
+   \   000074   3C40A861     MOV.W   #0x61a8, R12
+   \   000078   ........     CALLA   #Run_Forward
+   \   00007C   693C         JMP     ??Manual_Nav_5
+    190          		else if (speed == COM_SLOW)
+   \                     ??Manual_Nav_14:
+   \   00007E   78905300     CMP.B   #0x53, R8
+   \   000082   6620         JNE     ??Manual_Nav_5
+    191          			Run_Forward(WHEEL_SLOW);
+   \   000084   3C401027     MOV.W   #0x2710, R12
+   \   000088   ........     CALLA   #Run_Forward
+    192          		break;
+   \   00008C   613C         JMP     ??Manual_Nav_5
+    193          	case COM_REVERSE :
+    194          		if (speed == COM_FAST)
+   \                     ??Manual_Nav_8:
+   \   00008E   78904600     CMP.B   #0x46, R8
+   \   000092   0520         JNE     ??Manual_Nav_15
+    195          			Run_Reverse(WHEEL_FAST);
+   \   000094   3C40B888     MOV.W   #0x88b8, R12
+   \   000098   ........     CALLA   #Run_Reverse
+   \   00009C   593C         JMP     ??Manual_Nav_5
+    196          		else if (speed == COM_HALF)
+   \                     ??Manual_Nav_15:
+   \   00009E   78904800     CMP.B   #0x48, R8
+   \   0000A2   0520         JNE     ??Manual_Nav_16
+    197          			Run_Reverse(WHEEL_HALF);
+   \   0000A4   3C40A861     MOV.W   #0x61a8, R12
+   \   0000A8   ........     CALLA   #Run_Reverse
+   \   0000AC   513C         JMP     ??Manual_Nav_5
+    198          		else if (speed == COM_SLOW)
+   \                     ??Manual_Nav_16:
+   \   0000AE   78905300     CMP.B   #0x53, R8
+   \   0000B2   4E20         JNE     ??Manual_Nav_5
+    199          			Run_Reverse(WHEEL_SLOW);
+   \   0000B4   3C401027     MOV.W   #0x2710, R12
+   \   0000B8   ........     CALLA   #Run_Reverse
+    200          		break;
+   \   0000BC   493C         JMP     ??Manual_Nav_5
+    201          	case COM_LEFT :
+    202          		if (speed == COM_FAST)
+   \                     ??Manual_Nav_10:
+   \   0000BE   78904600     CMP.B   #0x46, R8
+   \   0000C2   0720         JNE     ??Manual_Nav_17
+    203          			Forward_Turn(WHEEL_HALF, WHEEL_FAST);
+   \   0000C4   3D40B888     MOV.W   #0x88b8, R13
+   \   0000C8   3C40A861     MOV.W   #0x61a8, R12
+   \   0000CC   ........     CALLA   #Forward_Turn
+   \   0000D0   3F3C         JMP     ??Manual_Nav_5
+    204          		else if (speed == COM_HALF)
+   \                     ??Manual_Nav_17:
+   \   0000D2   78904800     CMP.B   #0x48, R8
+   \   0000D6   0720         JNE     ??Manual_Nav_18
+    205          			Forward_Turn(WHEEL_SLOW, WHEEL_HALF);
+   \   0000D8   3D40A861     MOV.W   #0x61a8, R13
+   \   0000DC   3C401027     MOV.W   #0x2710, R12
+   \   0000E0   ........     CALLA   #Forward_Turn
+   \   0000E4   353C         JMP     ??Manual_Nav_5
+    206          		else if (speed == COM_SLOW)
+   \                     ??Manual_Nav_18:
+   \   0000E6   78905300     CMP.B   #0x53, R8
+   \   0000EA   3220         JNE     ??Manual_Nav_5
+    207          			Forward_Turn(WHEEL_OFF, WHEEL_SLOW);
+   \   0000EC   3D401027     MOV.W   #0x2710, R13
+   \   0000F0   0C43         MOV.W   #0x0, R12
+   \   0000F2   ........     CALLA   #Forward_Turn
+    208          		break;
+   \   0000F6   2C3C         JMP     ??Manual_Nav_5
+    209          	case COM_RIGHT :
+    210          		if (speed == COM_FAST)
+   \                     ??Manual_Nav_11:
+   \   0000F8   78904600     CMP.B   #0x46, R8
+   \   0000FC   0720         JNE     ??Manual_Nav_19
+    211          			Forward_Turn(WHEEL_FAST, WHEEL_HALF);
+   \   0000FE   3D40A861     MOV.W   #0x61a8, R13
+   \   000102   3C40B888     MOV.W   #0x88b8, R12
+   \   000106   ........     CALLA   #Forward_Turn
+   \   00010A   223C         JMP     ??Manual_Nav_5
+    212          		else if (speed == COM_HALF)
+   \                     ??Manual_Nav_19:
+   \   00010C   78904800     CMP.B   #0x48, R8
+   \   000110   0720         JNE     ??Manual_Nav_20
+    213          			Forward_Turn(WHEEL_HALF, WHEEL_SLOW);
+   \   000112   3D401027     MOV.W   #0x2710, R13
+   \   000116   3C40A861     MOV.W   #0x61a8, R12
+   \   00011A   ........     CALLA   #Forward_Turn
+   \   00011E   183C         JMP     ??Manual_Nav_5
+    214          		else if (speed == COM_SLOW)
+   \                     ??Manual_Nav_20:
+   \   000120   78905300     CMP.B   #0x53, R8
+   \   000124   1520         JNE     ??Manual_Nav_5
+    215          			Forward_Turn(WHEEL_SLOW, WHEEL_OFF);
+   \   000126   0D43         MOV.W   #0x0, R13
+   \   000128   3C401027     MOV.W   #0x2710, R12
+   \   00012C   ........     CALLA   #Forward_Turn
+    216          		break;
+   \   000130   0F3C         JMP     ??Manual_Nav_5
+    217          	case COM_ZERO_PT :
+    218          		if (speed == COM_LEFT)
+   \                     ??Manual_Nav_12:
+   \   000132   78904C00     CMP.B   #0x4c, R8
+   \   000136   0520         JNE     ??Manual_Nav_21
+    219          			Zero_Point_Left(WHEEL_SLOW);
+   \   000138   3C401027     MOV.W   #0x2710, R12
+   \   00013C   ........     CALLA   #Zero_Point_Left
+   \   000140   073C         JMP     ??Manual_Nav_5
+    220          		else if (speed == COM_RIGHT)
+   \                     ??Manual_Nav_21:
+   \   000142   78905200     CMP.B   #0x52, R8
+   \   000146   0420         JNE     ??Manual_Nav_5
+    221          			Zero_Point_Right(WHEEL_SLOW);
+   \   000148   3C401027     MOV.W   #0x2710, R12
+   \   00014C   ........     CALLA   #Zero_Point_Right
+    222          		break;
+    223          	default : break;
+    224          	}
+    225          }
+   \                     ??Manual_Nav_5:
+   \   000150   3817         POPM.W  #0x4, R11
+   \   000152   1001         RETA
+    226          
+
+   \                                 In  segment CODE, align 2
+    227          void Check_ADC(void) {
+   \                     Check_ADC:
+    228          	if (ADC_Left < L_OFF) {
+   \   000000   B290540B.... CMP.W   #0xb54, &ADC_Left
+   \   000006   032C         JC      ??Check_ADC_2
+    229          		offLeft = TRUE;
+   \   000008   9243....     MOV.W   #0x1, &offLeft
+   \   00000C   023C         JMP     ??Check_ADC_0
+    230          		//Left is off
+    231          	} else {
+    232          		//Found line on Left Edge
+    233          		offLeft = FALSE;
+   \                     ??Check_ADC_2:
+   \   00000E   8243....     MOV.W   #0x0, &offLeft
+    234          	}
+    235          		
+    236          	if (ADC_Right < R_OFF) {
+   \                     ??Check_ADC_0:
+   \   000012   B290540B.... CMP.W   #0xb54, &ADC_Right
+   \   000018   032C         JC      ??Check_ADC_3
+    237          		offRight = TRUE;
+   \   00001A   9243....     MOV.W   #0x1, &offRight
+   \   00001E   023C         JMP     ??Check_ADC_1
+    238          		//Right is off
+    239          	} else {
+    240          		//Found line on Right Edge
+    241          		offRight = FALSE;
+   \                     ??Check_ADC_3:
+   \   000020   8243....     MOV.W   #0x0, &offRight
+    242          	} 
+    243          	
+    244          	if (!onWhite) {
+   \                     ??Check_ADC_1:
+   \   000024   C293....     CMP.B   #0x0, &onWhite
+   \   000028   0A20         JNE     ??Check_ADC_4
+    245          		if (ADC_Left < ON_WHITE && ADC_Right < ON_WHITE)
+   \   00002A   B2900807.... CMP.W   #0x708, &ADC_Left
+   \   000030   062C         JC      ??Check_ADC_4
+   \   000032   B2900807.... CMP.W   #0x708, &ADC_Right
+   \   000038   022C         JC      ??Check_ADC_4
+    246          			onWhite = TRUE;
+   \   00003A   D243....     MOV.B   #0x1, &onWhite
+    247          	}
+    248          	
+    249          	if (!offRight && !offLeft)
+   \                     ??Check_ADC_4:
+   \   00003E   8293....     CMP.W   #0x0, &offRight
+   \   000042   0720         JNE     ??Check_ADC_5
+   \   000044   8293....     CMP.W   #0x0, &offLeft
+   \   000048   0420         JNE     ??Check_ADC_5
+    250          		firstOff = NONE;
+   \   00004A   F2404E00.... MOV.B   #0x4e, &firstOff
+   \   000050   1001         RETA
+    251          	else if (firstOff == NONE && offRight)
+   \                     ??Check_ADC_5:
+   \   000052   F2904E00.... CMP.B   #0x4e, &firstOff
+   \   000058   0720         JNE     ??Check_ADC_6
+   \   00005A   8293....     CMP.W   #0x0, &offRight
+   \   00005E   0424         JEQ     ??Check_ADC_6
+    252          		firstOff = RIGHT;
+   \   000060   F2405200.... MOV.B   #0x52, &firstOff
+   \   000066   1001         RETA
+    253          	else if (firstOff == NONE && offLeft)
+   \                     ??Check_ADC_6:
+   \   000068   F2904E00.... CMP.B   #0x4e, &firstOff
+   \   00006E   0620         JNE     ??Check_ADC_7
+   \   000070   8293....     CMP.W   #0x0, &offLeft
+   \   000074   0324         JEQ     ??Check_ADC_7
+    254          		firstOff = LEFT;
+   \   000076   F2404C00.... MOV.B   #0x4c, &firstOff
+    255          }
+   \                     ??Check_ADC_7:
+   \   00007C   1001         RETA
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Align_Line
+        4   -> Check_ADC
+        4   -> Wheels_Off
+        4   -> Zero_Point_Right
+      4   Check_ADC
+      4   Exit_Circle
+        4   -> Forward_Turn
+        4   -> Run_Forward
+        4   -> Wheels_Off
+      4   Follow_Line
+        4   -> Check_ADC
+        4   -> Forward_Turn
+        4   -> Run_Forward
+     12   Manual_Nav
+       12   -> Forward_Turn
+       12   -> Run_Forward
+       12   -> Run_Reverse
+       12   -> Zero_Point_Left
+       12   -> Zero_Point_Right
+      4   Seek_Line
+        4   -> Check_ADC
+        4   -> Run_Forward
+        4   -> Wheels_Off
+      4   SetUp_Seek
+        4   -> Forward_Turn
+        4   -> Run_Forward
+        4   -> Wheels_Off
+      4   Stop_Course
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      52  Align_Line
+     126  Check_ADC
+     104  Exit_Circle
+     108  Follow_Line
+     340  Manual_Nav
+     194  Seek_Line
+     102  SetUp_Seek
+      24  Stop_Course
+       2  _A_ADCCTL0_L
+       2  _A_PAOUT_L
+       1  onWhite
+
+ 
+ 1 050 bytes in segment CODE
+     4 bytes in segment DATA16_AN
+     1 byte  in segment DATA16_Z
+ 
+ 1 050 bytes of CODE memory
+     1 byte  of DATA memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

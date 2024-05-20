@@ -1,0 +1,546 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:05
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\serial.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW8ECA.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\serial.c"
+#        -lC "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List" -o "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE
+#        306\Project 10\Debug\Obj" --no_cse --no_unroll --no_inline
+#        --no_code_motion --no_tbaa --debug -D__MSP430FR2355__ -e --double=32
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.5\430\lib\dlib\dl430xlsfn.h" -I ./ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\serial.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\serial.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\serial.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the MaSerial Files
+      4          //
+      5          //
+      6          //  Nick Urch
+      7          //  November 01 2022
+      8          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          //-----------------------------------------------------
+     12          
+     13          //------------------------------------------------------------------------------
+     14          // TX error (%) RX error (%)
+     15          // BRCLK 		Baudrate 	UCOS16 	UCBRx 	UCFx 	UCSx neg pos neg pos
+     16          // 8000000 	4800 			1 			104 		2 		0xD6 -0.08 0.04 -0.10 0.14
+     17          // 8000000 	9600 			1 			52 			1 		0x49 -0.08 0.04 -0.10 0.14
+     18          // 8000000 	19200 		1 			26 			0 		0xB6 -0.08 0.16 -0.28 0.20
+     19          // 8000000 	57600 		1 			8 			10 		0xF7 -0.32 0.32 -1.00 0.36
+     20          // 8000000 	15200 		1 			4 			5 		0x55 -0.80 0.64 -1.12 1.76
+     21          // 8000000 	460800 		0 			1				7 		0 0x4A -2.72 2.56 -3.76 7.28
+     22          //
+     23          // IoT MAC Address : 90:38:0c:b0:4a:30
+     24          // Using Port : 8862
+     25          //
+     26          //------------------------------------------------------------------------------
+     27          
+     28          #include  "functions.h"
+     29          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x700
+   \   union <unnamed> _A_ADCCTL0_L
+   \                     _A_ADCCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x202
+   \   union <unnamed> _A_PAOUT_L
+   \                     _A_PAOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x222
+   \   union <unnamed> _A_PBOUT_L
+   \                     _A_PBOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59a
+   \   union <unnamed> _A_UCA1IE_L
+   \                     _A_UCA1IE_L:
+   \   000000                DS8 2
+     30          #include "macros.h"
+     31          #include <string.h>
+     32          
+     33          extern char display_line[4][11];
+     34          extern unsigned int LCD_Menu;
+     35          extern unsigned volatile char buff0Read[RNG_SIZE];
+     36          extern unsigned volatile char buff1Read[RNG_SIZE];
+     37          extern char buff0Proc[PROC_SIZE];
+     38          extern char buff1Proc[PROC_SIZE];
+     39          extern char buff0Out[PROC_SIZE];
+     40          extern char buff1Out[PROC_SIZE];
+     41          extern unsigned char proc0Read;
+     42          extern unsigned char proc1Read;
+     43          extern unsigned char proc0Write;
+     44          extern unsigned char proc1Write;
+     45          extern unsigned int startUp_timer;
+     46          extern unsigned int startUp_counter;
+     47          extern unsigned int setup_timer;
+     48          extern unsigned int setup_counter;
+     49          extern unsigned int exit_counter;
+     50          extern unsigned int exit_timer;
+     51          extern unsigned int follow_timer;
+     52          extern char check_point;
+     53          extern char buffIP[BUFF_IP_SIZE];
+     54          extern char IP1[TMP_IP_SIZE];
+     55          extern char IP2[TMP_IP_SIZE];
+     56          extern unsigned int wheel_timer;
+     57          extern unsigned int wheel_counter;
+     58          extern unsigned int wheelsON;
+     59          extern char msg[PROC_SIZE];
+     60          extern unsigned int runMode;
+     61          extern unsigned char moreCommand;
+     62          extern unsigned char exCommand;
+     63          extern char buffMsg[PROC_SIZE];
+     64          
+     65          //Process A command coming from UART 0 (IoT)
+
+   \                                 In  segment CODE, align 2
+     66          void Process_UART0_Command(void) {
+   \                     Process_UART0_Command:
+     67          	LCD_Menu = LCD_CLR;
+   \   000000   B2400B00.... MOV.W   #0xb, &LCD_Menu
+     68          	strcpy(msg, buff0Proc);
+   \   000006   3D40....     MOV.W   #buff0Proc, R13
+   \   00000A   3C40....     MOV.W   #msg, R12
+   \   00000E   ........     CALLA   #strcpy
+     69          	if (msg[COM_PW1] == PW1_CHAR && msg[COM_PW2] == PW2_CHAR) {
+   \   000012   F2903800.... CMP.B   #0x38, &msg
+   \   000018   6520         JNE     ??Process_UART0_Command_0
+   \   00001A   F2903600.... CMP.B   #0x36, &msg + 1
+   \   000020   6120         JNE     ??Process_UART0_Command_0
+     70          		Wheels_Off();
+   \   000022   ........     CALLA   #Wheels_Off
+     71          		switch (msg[COM_NUM]) {
+   \   000026   5E42....     MOV.B   &msg + 2, R14
+   \   00002A   7E804100     SUB.B   #0x41, R14
+   \   00002E   5024         JEQ     ??Process_UART0_Command_3
+   \   000030   5E83         SUB.B   #0x1, R14
+   \   000032   1224         JEQ     ??Process_UART0_Command_1
+   \   000034   5E83         SUB.B   #0x1, R14
+   \   000036   2C24         JEQ     ??Process_UART0_Command_4
+   \   000038   6E83         SUB.B   #0x2, R14
+   \   00003A   1E24         JEQ     ??Process_UART0_Command_5
+   \   00003C   5E83         SUB.B   #0x1, R14
+   \   00003E   0C24         JEQ     ??Process_UART0_Command_1
+   \   000040   6E83         SUB.B   #0x2, R14
+   \   000042   3B24         JEQ     ??Process_UART0_Command_6
+   \   000044   6E82         SUB.B   #0x4, R14
+   \   000046   0824         JEQ     ??Process_UART0_Command_1
+   \   000048   7E800600     SUB.B   #0x6, R14
+   \   00004C   0524         JEQ     ??Process_UART0_Command_1
+   \   00004E   5E83         SUB.B   #0x1, R14
+   \   000050   0924         JEQ     ??Process_UART0_Command_7
+   \   000052   7E800700     SUB.B   #0x7, R14
+   \   000056   4620         JNE     ??Process_UART0_Command_0
+     72          		case COM_FORWARD :
+     73          		case COM_REVERSE :
+     74          		case COM_LEFT :
+     75          		case COM_RIGHT :
+     76          		case COM_ZERO_PT :
+     77          			runMode = MANUAL;
+   \                     ??Process_UART0_Command_1:
+   \   000058   A242....     MOV.W   #0x4, &runMode
+     78          			LCD_Menu = LCD_CMD;
+   \   00005C   B2400D00.... MOV.W   #0xd, &LCD_Menu
+     79          			break;
+   \   000062   1001         RETA
+     80          		case COM_SEEK :
+     81          			//Blackline Seek/Follow
+     82          			runMode = SET_UP;
+   \                     ??Process_UART0_Command_7:
+   \   000064   B2400500.... MOV.W   #0x5, &runMode
+     83          			setup_timer = TRUE;
+   \   00006A   9243....     MOV.W   #0x1, &setup_timer
+     84          			setup_counter = RESET;
+   \   00006E   8243....     MOV.W   #0x0, &setup_counter
+     85          			exCommand = FALSE;
+   \   000072   C243....     MOV.B   #0x0, &exCommand
+     86          			break;
+   \   000076   1001         RETA
+     87          		case COM_EXIT :
+     88          			//Exit Command
+     89          			follow_timer = FALSE;
+   \                     ??Process_UART0_Command_5:
+   \   000078   8243....     MOV.W   #0x0, &follow_timer
+     90          			runMode = EXIT_CIRCLE;
+   \   00007C   B2400600.... MOV.W   #0x6, &runMode
+     91          			exit_timer = TRUE;
+   \   000082   9243....     MOV.W   #0x1, &exit_timer
+     92          			exit_counter = RESET;
+   \   000086   8243....     MOV.W   #0x0, &exit_counter
+     93          			exCommand = FALSE;
+   \   00008A   C243....     MOV.B   #0x0, &exCommand
+     94          			break;
+   \   00008E   1001         RETA
+     95          		case COM_CHECK_PT :
+     96          			if (msg[COM_TIME] == COM_PLUS)
+   \                     ??Process_UART0_Command_4:
+   \   000090   F2902B00.... CMP.B   #0x2b, &msg + 4
+   \   000096   0320         JNE     ??Process_UART0_Command_8
+     97          				check_point++;
+   \   000098   D253....     ADD.B   #0x1, &check_point
+   \   00009C   063C         JMP     ??Process_UART0_Command_2
+     98          			else if (msg[COM_TIME] == COM_MINUS)
+   \                     ??Process_UART0_Command_8:
+   \   00009E   F2902D00.... CMP.B   #0x2d, &msg + 4
+   \   0000A4   0220         JNE     ??Process_UART0_Command_2
+     99          				check_point--;
+   \   0000A6   F253....     ADD.B   #0xff, &check_point
+    100          			runMode = IDLE;
+   \                     ??Process_UART0_Command_2:
+   \   0000AA   8243....     MOV.W   #0x0, &runMode
+    101          			LCD_Menu = LCD_CHKPT;
+   \   0000AE   B2400F00.... MOV.W   #0xf, &LCD_Menu
+    102          			exCommand = FALSE;
+   \   0000B4   C243....     MOV.B   #0x0, &exCommand
+    103          			break;
+   \   0000B8   1001         RETA
+    104          		case COM_HALT :
+    105          			 //Halt Command
+    106          			exCommand = FALSE;
+   \                     ??Process_UART0_Command_6:
+   \   0000BA   C243....     MOV.B   #0x0, &exCommand
+    107          			moreCommand = FALSE;
+   \   0000BE   C243....     MOV.B   #0x0, &moreCommand
+    108          			Wheels_Off();
+   \   0000C2   ........     CALLA   #Wheels_Off
+    109          			wheel_timer = FALSE;
+   \   0000C6   8243....     MOV.W   #0x0, &wheel_timer
+    110          			runMode = IDLE;
+   \   0000CA   8243....     MOV.W   #0x0, &runMode
+    111          			break;
+   \   0000CE   1001         RETA
+    112          		case COM_ADC :
+    113          			runMode = IDLE;
+   \                     ??Process_UART0_Command_3:
+   \   0000D0   8243....     MOV.W   #0x0, &runMode
+    114          			ADCCTL0 |= ADCENC;
+   \   0000D4   A2D30007     BIS.W   #0x2, &0x700
+    115          			ADCCTL0 |= ADCSC;
+   \   0000D8   92D30007     BIS.W   #0x1, &0x700
+    116          			P2OUT |= IR_LED;
+   \   0000DC   E2D20302     BIS.B   #0x4, &0x203
+    117          			LCD_Menu = LCD_ADC;
+   \   0000E0   9243....     MOV.W   #0x1, &LCD_Menu
+    118          			break;
+    119          		default : break;
+    120          		}
+    121          	}
+    122          }
+   \                     ??Process_UART0_Command_0:
+   \   0000E4   1001         RETA
+   \   0000E6                REQUIRE _A_ADCCTL0_L
+   \   0000E6                REQUIRE _A_PAOUT_L
+    123          
+    124          //Process Command From UART 1
+
+   \                                 In  segment CODE, align 2
+    125          void Process_UART1_Command(void) {
+   \                     Process_UART1_Command:
+   \   000000   0A12         PUSH.W  R10
+    126          	char cmd = buff1Proc[1];
+   \   000002   5A42....     MOV.B   &buff1Proc + 1, R10
+    127          	switch (cmd) {
+   \   000006   4E4A         MOV.B   R10, R14
+   \   000008   7E803900     SUB.B   #0x39, R14
+   \   00000C   1424         JEQ     ??Process_UART1_Command_2
+   \   00000E   7E800F00     SUB.B   #0xf, R14
+   \   000012   0324         JEQ     ??Process_UART1_Command_3
+   \   000014   5E83         SUB.B   #0x1, R14
+   \   000016   0824         JEQ     ??Process_UART1_Command_4
+   \   000018   123C         JMP     ??Process_UART1_Command_0
+    128          	case COM_HELLO :
+    129          		strcpy(buff1Out, "Hello\n");
+   \                     ??Process_UART1_Command_3:
+   \   00001A   3D40....     MOV.W   #`?<Constant "Hello\\n">`, R13
+   \   00001E   3C40....     MOV.W   #buff1Out, R12
+   \   000022   ........     CALLA   #strcpy
+    130          		break;
+   \   000026   113C         JMP     ??Process_UART1_Command_1
+    131          	case COM_INIT :
+    132          		strcpy(buff1Out, "Initializing\n");
+   \                     ??Process_UART1_Command_4:
+   \   000028   3D40....     MOV.W   #`?<Constant "Initializing\\n">`, R13
+   \   00002C   3C40....     MOV.W   #buff1Out, R12
+   \   000030   ........     CALLA   #strcpy
+    133          		break;
+   \   000034   0A3C         JMP     ??Process_UART1_Command_1
+    134          	case COM_IOT_RESET :
+    135          			P3OUT &= ~IOT_EN_CPU;
+   \                     ??Process_UART1_Command_2:
+   \   000036   F2C080002202 BIC.B   #0x80, &0x222
+    136          			break;
+   \   00003C   063C         JMP     ??Process_UART1_Command_1
+    137          	default :
+    138          		strcpy(buff1Out, "Invalid Command\n");
+   \                     ??Process_UART1_Command_0:
+   \   00003E   3D40....     MOV.W   #`?<Constant "Invalid Command\\n">`, R13
+   \   000042   3C40....     MOV.W   #buff1Out, R12
+   \   000046   ........     CALLA   #strcpy
+    139          		break;
+    140          	}
+    141          	proc1Read = RESET;
+   \                     ??Process_UART1_Command_1:
+   \   00004A   C243....     MOV.B   #0x0, &proc1Read
+    142          	UCA1IE |= UCTXIE;
+   \   00004E   A2D39A05     BIS.W   #0x2, &0x59a
+    143          	strcpy(buff1Proc, "");
+   \   000052   3D40....     MOV.W   #`?<Constant "">`, R13
+   \   000056   3C40....     MOV.W   #buff1Proc, R12
+   \   00005A   ........     CALLA   #strcpy
+    144          }
+   \   00005E   3A41         POP.W   R10
+   \   000060   1001         RETA
+   \   000062                REQUIRE _A_PBOUT_L
+   \   000062                REQUIRE _A_UCA1IE_L
+    145          
+    146          //Capture the IP Address and Split into 2 Strings for the LCD
+
+   \                                 In  segment CODE, align 2
+    147          void Parse_IP(void) {
+   \                     Parse_IP:
+   \   000000   3B15         PUSHM.W #0x4, R11
+   \   000002   B1001400     SUBA    #0x14, SP
+    148          	int dotCount = RESET;
+   \   000006   0B43         MOV.W   #0x0, R11
+    149          	int j = RESET;
+   \   000008   0A43         MOV.W   #0x0, R10
+    150          	strcpy(IP1, "");
+   \   00000A   3D40....     MOV.W   #`?<Constant "">`, R13
+   \   00000E   3C40....     MOV.W   #IP1, R12
+   \   000012   ........     CALLA   #strcpy
+    151          	strcpy(IP2, "");
+   \   000016   3D40....     MOV.W   #`?<Constant "">`, R13
+   \   00001A   3C40....     MOV.W   #IP2, R12
+   \   00001E   ........     CALLA   #strcpy
+    152          	for (int i = RESET; i < PROC_SIZE; i++) {
+   \   000022   0F43         MOV.W   #0x0, R15
+   \                     ??Parse_IP_0:
+   \   000024   3F903000     CMP.W   #0x30, R15
+   \   000028   1A34         JGE     ??Parse_IP_4
+    153          		if (dotCount < 2) {
+   \   00002A   2B93         CMP.W   #0x2, R11
+   \   00002C   0434         JGE     ??Parse_IP_6
+    154          			IP1[i] = buffIP[i];
+   \   00002E   DF4F........ MOV.B   buffIP(R15), IP1(R15)
+   \   000034   0D3C         JMP     ??Parse_IP_3
+    155          		} else if (dotCount >= 2 && buffIP[i] != 0x00) {
+   \                     ??Parse_IP_6:
+   \   000036   2B93         CMP.W   #0x2, R11
+   \   000038   0838         JL      ??Parse_IP_7
+   \   00003A   CF93....     CMP.B   #0x0, buffIP(R15)
+   \   00003E   0524         JEQ     ??Parse_IP_7
+    156          			IP2[j++] = buffIP[i];
+   \   000040   DA4F........ MOV.B   buffIP(R15), IP2(R10)
+   \   000046   1A53         ADD.W   #0x1, R10
+   \   000048   033C         JMP     ??Parse_IP_3
+    157          		} else if (buffIP[i] == 0x00) {
+   \                     ??Parse_IP_7:
+   \   00004A   CF93....     CMP.B   #0x0, buffIP(R15)
+   \   00004E   0724         JEQ     ??Parse_IP_4
+    158          			break;
+    159          		}
+    160          		if (buffIP[i] == IP_DOT)
+   \                     ??Parse_IP_3:
+   \   000050   FF902E00.... CMP.B   #0x2e, buffIP(R15)
+   \   000056   0120         JNE     ??Parse_IP_8
+    161          			dotCount++;
+   \   000058   1B53         ADD.W   #0x1, R11
+    162          	}
+   \                     ??Parse_IP_8:
+   \   00005A   1F53         ADD.W   #0x1, R15
+   \   00005C   E33F         JMP     ??Parse_IP_0
+    163          	if (IP1[0] == 0x00) {
+   \                     ??Parse_IP_4:
+   \   00005E   C293....     CMP.B   #0x0, &IP1
+   \   000062   0620         JNE     ??Parse_IP_9
+    164          		startUp_timer = TRUE;
+   \   000064   9243....     MOV.W   #0x1, &startUp_timer
+    165          		startUp_counter = IOT_4;
+   \   000068   B2405000.... MOV.W   #0x50, &startUp_counter
+   \   00006E   573C         JMP     ??Parse_IP_5
+    166          	} else {
+    167          		char tmpIP1[TMP_IP_SIZE] = {0};
+   \                     ??Parse_IP_9:
+   \   000070   81430A00     MOV.W   #0x0, 0xa(SP)
+   \   000074   81430C00     MOV.W   #0x0, 0xc(SP)
+   \   000078   81430E00     MOV.W   #0x0, 0xe(SP)
+   \   00007C   81431000     MOV.W   #0x0, 0x10(SP)
+   \   000080   81431200     MOV.W   #0x0, 0x12(SP)
+    168          		char tmpIP2[TMP_IP_SIZE] ={0};
+   \   000084   81430000     MOV.W   #0x0, 0(SP)
+   \   000088   81430200     MOV.W   #0x0, 0x2(SP)
+   \   00008C   81430400     MOV.W   #0x0, 0x4(SP)
+   \   000090   81430600     MOV.W   #0x0, 0x6(SP)
+   \   000094   81430800     MOV.W   #0x0, 0x8(SP)
+    169          		int len;
+    170          		len = (TMP_IP_SIZE - strlen(IP1)) / 2;
+   \   000098   39400A00     MOV.W   #0xa, R9
+   \   00009C   3C40....     MOV.W   #IP1, R12
+   \   0000A0   ........     CALLA   #strlen
+   \   0000A4   098C         SUB.W   R12, R9
+   \   0000A6   5903         RRUM.W  #0x1, R9
+   \   0000A8   0849         MOV.W   R9, R8
+    171          		for (int i = 0; i < len; i++) {
+   \   0000AA   0F43         MOV.W   #0x0, R15
+   \                     ??Parse_IP_1:
+   \   0000AC   0F98         CMP.W   R8, R15
+   \   0000AE   0734         JGE     ??Parse_IP_10
+    172          			tmpIP1[i] = ' ';
+   \   0000B0   0E4F         MOV.W   R15, R14
+   \   0000B2   0E51         ADD.W   SP, R14
+   \   0000B4   FE4020000A00 MOV.B   #0x20, 0xa(R14)
+    173          		}
+   \   0000BA   1F53         ADD.W   #0x1, R15
+   \   0000BC   F73F         JMP     ??Parse_IP_1
+    174          		strcat(tmpIP1, IP1);
+   \                     ??Parse_IP_10:
+   \   0000BE   3D40....     MOV.W   #IP1, R13
+   \   0000C2   0C41         MOV.W   SP, R12
+   \   0000C4   3C500A00     ADD.W   #0xa, R12
+   \   0000C8   ........     CALLA   #strcat
+    175          		strcpy(IP1, tmpIP1);
+   \   0000CC   0D41         MOV.W   SP, R13
+   \   0000CE   3D500A00     ADD.W   #0xa, R13
+   \   0000D2   3C40....     MOV.W   #IP1, R12
+   \   0000D6   ........     CALLA   #strcpy
+    176          		len = (TMP_IP_SIZE - strlen(IP2)) / 2;
+   \   0000DA   39400A00     MOV.W   #0xa, R9
+   \   0000DE   3C40....     MOV.W   #IP2, R12
+   \   0000E2   ........     CALLA   #strlen
+   \   0000E6   098C         SUB.W   R12, R9
+   \   0000E8   5903         RRUM.W  #0x1, R9
+   \   0000EA   0849         MOV.W   R9, R8
+    177          		for (int i = 0; i < len; i++) {
+   \   0000EC   0F43         MOV.W   #0x0, R15
+   \                     ??Parse_IP_2:
+   \   0000EE   0F98         CMP.W   R8, R15
+   \   0000F0   0734         JGE     ??Parse_IP_11
+    178          			tmpIP2[i] = ' ';
+   \   0000F2   0E4F         MOV.W   R15, R14
+   \   0000F4   0E51         ADD.W   SP, R14
+   \   0000F6   FE4020000000 MOV.B   #0x20, 0(R14)
+    179          		}
+   \   0000FC   1F53         ADD.W   #0x1, R15
+   \   0000FE   F73F         JMP     ??Parse_IP_2
+    180          		strcat(tmpIP2, IP2);
+   \                     ??Parse_IP_11:
+   \   000100   3D40....     MOV.W   #IP2, R13
+   \   000104   0C41         MOV.W   SP, R12
+   \   000106   ........     CALLA   #strcat
+    181          		strcpy(IP2, tmpIP2);
+   \   00010A   0D41         MOV.W   SP, R13
+   \   00010C   3C40....     MOV.W   #IP2, R12
+   \   000110   ........     CALLA   #strcpy
+    182          		exCommand = FALSE;
+   \   000114   C243....     MOV.B   #0x0, &exCommand
+    183          		LCD_Menu = LCD_IP;
+   \   000118   B2400C00.... MOV.W   #0xc, &LCD_Menu
+    184          	}
+    185          }
+   \                     ??Parse_IP_5:
+   \   00011E   A1001400     ADDA    #0x14, SP
+   \   000122   3817         POPM.W  #0x4, R11
+   \   000124   1001         RETA
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "Hello\\n">`:
+   \   000000   48656C6C6F0A DC8 "Hello\012"
+   \            00          
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "Initializing\\n">`:
+   \   000000   496E69746961 DC8 "Initializing\012"
+   \            6C697A696E67
+   \            0A00        
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "Invalid Command\\n">`:
+   \   000000   496E76616C69 DC8 "Invalid Command\012"
+   \            6420436F6D6D
+   \            616E640A00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "">`:
+   \   000000   00           DC8 ""
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \   000000   000000000000 DC8 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   \            00000000    
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \   000000   000000000000 DC8 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   \            00000000    
+    186          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+     32   Parse_IP
+       32   -> strcat
+       32   -> strcpy
+       32   -> strlen
+      4   Process_UART0_Command
+        4   -> Wheels_Off
+        4   -> strcpy
+      6   Process_UART1_Command
+        6   -> strcpy
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       1  ?<Constant "">
+       7  ?<Constant "Hello\n">
+      14  ?<Constant "Initializing\n">
+      17  ?<Constant "Invalid Command\n">
+      10  ?<Constant {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}>
+      10  ?<Constant {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}>_1
+     294  Parse_IP
+     230  Process_UART0_Command
+      98  Process_UART1_Command
+       2  _A_ADCCTL0_L
+       2  _A_PAOUT_L
+       2  _A_PBOUT_L
+       2  _A_UCA1IE_L
+
+ 
+ 622 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+  59 bytes in segment DATA16_C
+ 
+ 622 bytes of CODE  memory
+  59 bytes of CONST memory
+   0 bytes of DATA  memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

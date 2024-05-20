@@ -1,0 +1,227 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:05
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\switches.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW9033.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\switches.c"
+#        -lC "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List" -o "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE
+#        306\Project 10\Debug\Obj" --no_cse --no_unroll --no_inline
+#        --no_code_motion --no_tbaa --debug -D__MSP430FR2355__ -e --double=32
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.5\430\lib\dlib\dl430xlsfn.h" -I ./ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\switches.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\switches.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\switches.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This File controls the switch process
+      4          //
+      5          //
+      6          //  Nick Urch
+      7          //  September 25, 2022
+      8          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      9          //------------------------------------------------------------------------------
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x21a
+   \   union <unnamed> _A_PAIE_L
+   \                     _A_PAIE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x21c
+   \   union <unnamed> _A_PAIFG_L
+   \                     _A_PAIFG_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x23a
+   \   union <unnamed> _A_PBIE_L
+   \                     _A_PBIE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x23c
+   \   union <unnamed> _A_PBIFG_L
+   \                     _A_PBIFG_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     14          unsigned int sw1_DB_time = RESET;
+   \                     sw1_DB_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     15          unsigned int sw2_DB_time = RESET;
+   \                     sw2_DB_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     16          unsigned int sw1_in_DB = RESET;
+   \                     sw1_in_DB:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     17          unsigned int sw2_in_DB = RESET;
+   \                     sw2_in_DB:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     18          unsigned int sw1_position = RESET;
+   \                     sw1_position:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          unsigned int sw2_position = RESET;
+   \                     sw2_position:
+   \   000000                DS8 2
+     20          extern unsigned int event;
+     21          extern unsigned int wheel_timer;
+     22          extern unsigned int wheel_state;
+     23          extern unsigned int wait_timer;
+     24          extern unsigned int wheel_pattern;
+     25          extern unsigned int port3_operation;
+     26          extern unsigned int LCD_Menu;
+     27          extern unsigned int LCD_Prev;
+     28          
+     29          #pragma vector = PORT4_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     30          __interrupt void switchP4_interrupt(void) {
+   \                     switchP4_interrupt:
+     31          	//Switch 1
+     32          	if (P4IFG & SW1) {
+   \   000000   E2B33D02     BIT.B   #0x2, &0x23d
+   \   000004   1228         JNC     ??switchP4_interrupt_0
+     33          		P4IFG &= ~SW1;
+   \   000006   E2C33D02     BIC.B   #0x2, &0x23d
+     34          		sw1_position = TRUE;
+   \   00000A   9243....     MOV.W   #0x1, &sw1_position
+     35          		sw1_DB_time = RESET;
+   \   00000E   8243....     MOV.W   #0x0, &sw1_DB_time
+     36          		sw1_in_DB = TRUE;
+   \   000012   9243....     MOV.W   #0x1, &sw1_in_DB
+     37          		P4IFG &= ~SW1; // Clear all P4 interrupt flags
+   \   000016   E2C33D02     BIC.B   #0x2, &0x23d
+     38          		P4IE &= ~SW1; // P4.2 interrupt disabled
+   \   00001A   E2C33B02     BIC.B   #0x2, &0x23b
+     39          		LCD_Prev = LCD_Menu;
+   \   00001E   9242........ MOV.W   &LCD_Menu, &LCD_Prev
+     40          		LCD_Menu = LCD_SW1;
+   \   000024   B2400300.... MOV.W   #0x3, &LCD_Menu
+     41          	}
+     42          }
+   \                     ??switchP4_interrupt_0:
+   \   00002A   0013         RETI
+   \   00002C                REQUIRE _A_PBIFG_L
+   \   00002C                REQUIRE _A_PBIE_L
+     43          
+     44          #pragma vector = PORT2_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     45          __interrupt void switchP2_interrupt(void) {
+   \                     switchP2_interrupt:
+     46          	//Switch 2
+     47          	if (P2IFG & SW2) {
+   \   000000   F2B21D02     BIT.B   #0x8, &0x21d
+   \   000004   1128         JNC     ??switchP2_interrupt_0
+     48          		P2IFG &= ~SW2;
+   \   000006   F2C21D02     BIC.B   #0x8, &0x21d
+     49          		//P2OUT |= IR_LED;
+     50          		sw2_position = TRUE;
+   \   00000A   9243....     MOV.W   #0x1, &sw2_position
+     51          		sw2_DB_time = RESET;
+   \   00000E   8243....     MOV.W   #0x0, &sw2_DB_time
+     52          		sw2_in_DB = TRUE;
+   \   000012   9243....     MOV.W   #0x1, &sw2_in_DB
+     53          		P2IFG &= ~SW2; // Clear all P2.6 interrupt flags
+   \   000016   F2C21D02     BIC.B   #0x8, &0x21d
+     54          		P2IE &= ~SW2; // P4.2 interrupt disabled
+   \   00001A   F2C21B02     BIC.B   #0x8, &0x21b
+     55          		LCD_Prev = LCD_Menu;
+   \   00001E   9242........ MOV.W   &LCD_Menu, &LCD_Prev
+     56          		LCD_Menu = LCD_SW2;
+   \   000024   A242....     MOV.W   #0x4, &LCD_Menu
+     57          	}
+     58          }
+   \                     ??switchP2_interrupt_0:
+   \   000028   0013         RETI
+   \   00002A                REQUIRE _A_PAIFG_L
+   \   00002A                REQUIRE _A_PAIE_L
+
+   \                                 In  segment INTVEC, offset 0x2c, root
+   \                     `??switchP4_interrupt::??INTVEC 44`:
+   \   00002C   ....         DC16    switchP4_interrupt
+
+   \                                 In  segment INTVEC, offset 0x30, root
+   \                     `??switchP2_interrupt::??INTVEC 48`:
+   \   000030   ....         DC16    switchP2_interrupt
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   switchP2_interrupt
+      4   switchP4_interrupt
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  _A_PAIE_L
+       2  _A_PAIFG_L
+       2  _A_PBIE_L
+       2  _A_PBIFG_L
+       2  sw1_DB_time
+       2  sw1_in_DB
+       2  sw1_position
+       2  sw2_DB_time
+       2  sw2_in_DB
+       2  sw2_position
+      42  switchP2_interrupt
+       2  switchP2_interrupt::??INTVEC 48
+      44  switchP4_interrupt
+       2  switchP4_interrupt::??INTVEC 44
+
+ 
+  8 bytes in segment DATA16_AN
+ 12 bytes in segment DATA16_Z
+  4 bytes in segment INTVEC
+ 86 bytes in segment ISR_CODE
+ 
+ 86 bytes of CODE  memory
+  0 bytes of CONST memory (+ 4 bytes shared)
+ 12 bytes of DATA  memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

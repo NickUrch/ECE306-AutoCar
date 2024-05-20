@@ -1,0 +1,433 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:05
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\interrupts.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW8A50.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\interrupts.c" -lC "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE
+#        306\Project 10\Debug\List" -o
+#        "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\Debug\Obj"
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa --debug
+#        -D__MSP430FR2355__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 8.5\430\lib\dlib\dl430xlsfn.h" -I
+#        ./ --core=430X --data_model=small -On --multiplier=32
+#        --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\interrupts.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\interrupts.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\interrupts.c
+      1          //------------------------------------------------------------
+      2          //  Description: CInterupts
+      3          //  Nick Urch
+      4          //  October 13, 2022
+      5          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      6          //------------------------------------------------------------
+      7          #include  "functions.h"
+      8          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x700
+   \   union <unnamed> _A_ADCCTL0_L
+   \                     _A_ADCCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x70a
+   \   union <unnamed> _A_ADCMCTL0_L
+   \                     _A_ADCMCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x712
+   \   union <unnamed> _A_ADCMEM0_L
+   \                     _A_ADCMEM0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x71e
+   \   union <unnamed> _A_ADCIV_L
+   \                     _A_ADCIV_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50c
+   \   union <unnamed> _A_UCA0RXBUF_L
+   \                     _A_UCA0RXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51a
+   \   union <unnamed> _A_UCA0IE_L
+   \                     _A_UCA0IE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51e
+   \   union <unnamed> _A_UCA0IV_L
+   \                     _A_UCA0IV_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58c
+   \   union <unnamed> _A_UCA1RXBUF_L
+   \                     _A_UCA1RXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59a
+   \   union <unnamed> _A_UCA1IE_L
+   \                     _A_UCA1IE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59e
+   \   union <unnamed> _A_UCA1IV_L
+   \                     _A_UCA1IV_L:
+   \   000000                DS8 2
+      9          #include  "macros.h"
+     10          
+     11          extern volatile unsigned int ADC_Channel;
+     12          extern volatile unsigned int ADC_Thumb;
+     13          extern volatile unsigned int ADC_Left;
+     14          extern volatile unsigned int ADC_Right;
+     15          extern volatile unsigned int ADC_Channel;
+     16          extern unsigned volatile char buff0Read[RNG_SIZE];
+     17          extern unsigned volatile char buff1Read[RNG_SIZE];
+     18          extern unsigned volatile char ring0Read;
+     19          extern unsigned volatile char ring0Write;
+     20          extern unsigned volatile char ring1Read;
+     21          extern unsigned volatile char ring1Write;
+     22          extern char buff0Out[PROC_SIZE];
+     23          extern unsigned char proc0Write;
+     24          extern unsigned char proc0Read;
+     25          extern char buff1Out[PROC_SIZE];
+     26          extern unsigned char proc1Write;
+     27          extern unsigned char proc1Read;
+     28          extern unsigned char txPassThrough;
+     29          extern unsigned char inCommand;
+     30          
+     31          
+     32          //ADC Interupt
+     33          #pragma vector = ADC_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     34          __interrupt void ADC_ISR(void) {
+   \                     ADC_ISR:
+   \   000000   1F15         PUSHM.W #0x2, R15
+     35          	switch(__even_in_range(ADCIV,ADCIV_ADCIFG)){
+   \   000002   1F421E07     MOV.W   &0x71e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for ADC_ISR>_0`:
+   \   000008   363C         JMP     ??ADC_ISR_1
+   \   00000A   353C         JMP     ??ADC_ISR_1
+   \   00000C   343C         JMP     ??ADC_ISR_1
+   \   00000E   333C         JMP     ??ADC_ISR_1
+   \   000010   323C         JMP     ??ADC_ISR_1
+   \   000012   313C         JMP     ??ADC_ISR_1
+   \   000014   003C         JMP     ??ADC_ISR_5
+     36          	case ADCIV_NONE:
+     37          		break;
+     38          	case ADCIV_ADCOVIFG: // When a conversion result is written to the ADCMEM0
+     39          												// before its previous conversion result was read.
+     40          		break;
+     41          	case ADCIV_ADCTOVIFG: // ADC conversion-time overflow
+     42          		break;
+     43          	case ADCIV_ADCHIIFG: // Window comparator interrupt flags
+     44          		break;
+     45          	case ADCIV_ADCLOIFG: // Window comparator interrupt flag
+     46          		break;
+     47          	case ADCIV_ADCINIFG: // Window comparator interrupt flag
+     48          		break;
+     49          	case ADCIV_ADCIFG: // ADCMEM0 memory register with the conversion result
+     50          		ADCCTL0 &= ~ADCENC;
+   \                     ??ADC_ISR_5:
+   \   000016   A2C30007     BIC.W   #0x2, &0x700
+     51          		switch (ADC_Channel++) {
+   \   00001A   1F42....     MOV.W   &ADC_Channel, R15
+   \   00001E   0E4F         MOV.W   R15, R14
+   \   000020   1E53         ADD.W   #0x1, R14
+   \   000022   824E....     MOV.W   R14, &ADC_Channel
+   \   000026   0F83         SUB.W   #0x0, R15
+   \   000028   0524         JEQ     ??ADC_ISR_2
+   \   00002A   1F83         SUB.W   #0x1, R15
+   \   00002C   0C24         JEQ     ??ADC_ISR_3
+   \   00002E   1F83         SUB.W   #0x1, R15
+   \   000030   1424         JEQ     ??ADC_ISR_4
+   \   000032   1D3C         JMP     ??ADC_ISR_0
+     52          		case (CH_LEFT) :
+     53          			ADCMCTL0 &= ~ADCINCH_2;
+   \                     ??ADC_ISR_2:
+   \   000034   A2C30A07     BIC.W   #0x2, &0x70a
+     54          			ADCMCTL0 |= ADCINCH_3;
+   \   000038   B2D003000A07 BIS.W   #0x3, &0x70a
+     55          			ADC_Left = ADCMEM0;
+   \   00003E   92421207.... MOV.W   &0x712, &ADC_Left
+     56          			break;
+   \   000044   143C         JMP     ??ADC_ISR_0
+     57          		case (CH_RIGHT) :
+     58          			ADCMCTL0 &= ~ADCINCH_3;
+   \                     ??ADC_ISR_3:
+   \   000046   B2F0FCFF0A07 AND.W   #0xfffc, &0x70a
+     59          			ADCMCTL0 |= ADCINCH_5;
+   \   00004C   B2D005000A07 BIS.W   #0x5, &0x70a
+     60          			ADC_Right = ADCMEM0;
+   \   000052   92421207.... MOV.W   &0x712, &ADC_Right
+     61          			break;
+   \   000058   0A3C         JMP     ??ADC_ISR_0
+     62          		case (CH_THUMB):
+     63          			ADCMCTL0 &= ~ADCINCH_5;
+   \                     ??ADC_ISR_4:
+   \   00005A   B2F0FAFF0A07 AND.W   #0xfffa, &0x70a
+     64          			ADCMCTL0 |= ADCINCH_2;
+   \   000060   A2D30A07     BIS.W   #0x2, &0x70a
+     65          			ADC_Thumb = ADCMEM0;
+   \   000064   92421207.... MOV.W   &0x712, &ADC_Thumb
+     66          			ADC_Channel = RESET;
+   \   00006A   8243....     MOV.W   #0x0, &ADC_Channel
+     67          			break;
+     68          		default : break;
+     69          		}
+     70          		ADCCTL0 |= ADCENC;
+   \                     ??ADC_ISR_0:
+   \   00006E   A2D30007     BIS.W   #0x2, &0x700
+     71          		ADCCTL0 |= ADCSC;
+   \   000072   92D30007     BIS.W   #0x1, &0x700
+     72          		break;
+     73          	default:
+     74          		break;
+     75          	}
+     76          }
+   \                     ??ADC_ISR_1:
+   \   000076   1E17         POPM.W  #0x2, R15
+   \   000078   0013         RETI
+   \   00007A                REQUIRE _A_ADCCTL0_L
+   \   00007A                REQUIRE _A_ADCMCTL0_L
+   \   00007A                REQUIRE _A_ADCMEM0_L
+   \   00007A                REQUIRE _A_ADCIV_L
+     77          
+     78          //Serial Interrupt 0
+     79          #pragma vector = EUSCI_A0_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     80          __interrupt void eUSCI_A0_ISR(void) {
+   \                     eUSCI_A0_ISR:
+   \   000000   3F15         PUSHM.W #0x4, R15
+     81          	char tmpChar;
+     82          	unsigned char tmp;
+     83          	switch(__even_in_range(UCA0IV, 0x08)) {
+   \   000002   1F421E05     MOV.W   &0x51e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for eUSCI_A0_ISR>_0`:
+   \   000008   2D3C         JMP     ??eUSCI_A0_ISR_2
+   \   00000A   033C         JMP     ??eUSCI_A0_ISR_3
+   \   00000C   193C         JMP     ??eUSCI_A0_ISR_4
+   \   00000E   2A3C         JMP     ??eUSCI_A0_ISR_2
+   \   000010   293C         JMP     ??eUSCI_A0_ISR_2
+     84          	case 0 :
+     85          		break;
+     86          	case 2 :
+     87          		tmpChar = UCA0RXBUF;
+   \                     ??eUSCI_A0_ISR_3:
+   \   000012   1E420C05     MOV.W   &0x50c, R14
+   \   000016   4C4E         MOV.B   R14, R12
+     88          		UCA1TXBUF = tmpChar;
+   \   000018   4C4C         MOV.B   R12, R12
+   \   00001A   824C8E05     MOV.W   R12, &0x58e
+     89          		tmp = ring0Write++;
+   \   00001E   5E42....     MOV.B   &ring0Write, R14
+   \   000022   4F4E         MOV.B   R14, R15
+   \   000024   5F53         ADD.B   #0x1, R15
+   \   000026   C24F....     MOV.B   R15, &ring0Write
+   \   00002A   4D4E         MOV.B   R14, R13
+     90          		buff0Read[tmp] = tmpChar;
+   \   00002C   4D4D         MOV.B   R13, R13
+   \   00002E   CD4C....     MOV.B   R12, buff0Read(R13)
+     91          		if (ring0Write >= (sizeof(buff0Read))) {
+   \   000032   F2903000.... CMP.B   #0x30, &ring0Write
+   \   000038   1528         JNC     ??eUSCI_A0_ISR_2
+     92          			ring0Write = START;
+   \   00003A   C243....     MOV.B   #0x0, &ring0Write
+     93          		}
+     94          		break;
+   \   00003E   123C         JMP     ??eUSCI_A0_ISR_2
+     95          	case 4 :
+     96          		UCA0TXBUF = buff0Out[proc0Read++];
+   \                     ??eUSCI_A0_ISR_4:
+   \   000040   5F42....     MOV.B   &proc0Read, R15
+   \   000044   4F4F         MOV.B   R15, R15
+   \   000046   5F4F....     MOV.B   buff0Out(R15), R15
+   \   00004A   4F4F         MOV.B   R15, R15
+   \   00004C   824F0E05     MOV.W   R15, &0x50e
+   \   000050   D253....     ADD.B   #0x1, &proc0Read
+     97          		if (buff0Out[proc0Read] == 0x00)
+   \   000054   5F42....     MOV.B   &proc0Read, R15
+   \   000058   4F4F         MOV.B   R15, R15
+   \   00005A   CF93....     CMP.B   #0x0, buff0Out(R15)
+   \   00005E   0220         JNE     ??eUSCI_A0_ISR_2
+     98          			UCA0IE &= ~UCTXIE;
+   \   000060   A2C31A05     BIC.W   #0x2, &0x51a
+     99          		break;
+    100          	default :
+    101          		break;
+    102          	}
+    103          }
+   \                     ??eUSCI_A0_ISR_2:
+   \   000064   3C17         POPM.W  #0x4, R15
+   \   000066   0013         RETI
+   \   000068                REQUIRE _A_UCA0RXBUF_L
+   \   000068                REQUIRE _A_UCA1TXBUF_L
+   \   000068                REQUIRE _A_UCA0TXBUF_L
+   \   000068                REQUIRE _A_UCA0IE_L
+   \   000068                REQUIRE _A_UCA0IV_L
+    104          
+    105          //UART 1 Interrupt
+    106          #pragma vector = EUSCI_A1_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+    107          __interrupt void eUSCI_A1_ISR(void) {
+   \                     eUSCI_A1_ISR:
+   \   000000   2F15         PUSHM.W #0x3, R15
+    108          	unsigned char tmp;
+    109          	switch(__even_in_range(UCA1IV, 0x08)) {
+   \   000002   1F429E05     MOV.W   &0x59e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for eUSCI_A1_ISR>_0`:
+   \   000008   303C         JMP     ??eUSCI_A1_ISR_2
+   \   00000A   033C         JMP     ??eUSCI_A1_ISR_4
+   \   00000C   1C3C         JMP     ??eUSCI_A1_ISR_5
+   \   00000E   2D3C         JMP     ??eUSCI_A1_ISR_2
+   \   000010   2C3C         JMP     ??eUSCI_A1_ISR_2
+    110          	case 0:
+    111          		break;
+    112          	case 2:
+    113          		tmp = ring1Write++;
+   \                     ??eUSCI_A1_ISR_4:
+   \   000012   5F42....     MOV.B   &ring1Write, R15
+   \   000016   4D4F         MOV.B   R15, R13
+   \   000018   5D53         ADD.B   #0x1, R13
+   \   00001A   C24D....     MOV.B   R13, &ring1Write
+   \   00001E   4E4F         MOV.B   R15, R14
+    114          		buff1Read[tmp] = UCA1RXBUF;
+   \   000020   1F428C05     MOV.W   &0x58c, R15
+   \   000024   4E4E         MOV.B   R14, R14
+   \   000026   CE4F....     MOV.B   R15, buff1Read(R14)
+    115          		if (buff1Read[tmp] == COM_CHAR)
+   \   00002A   4E4E         MOV.B   R14, R14
+   \   00002C   FE905E00.... CMP.B   #0x5e, buff1Read(R14)
+   \   000032   0220         JNE     ??eUSCI_A1_ISR_3
+    116          			txPassThrough = FALSE;
+   \   000034   C243....     MOV.B   #0x0, &txPassThrough
+    117          		if (ring1Write >= (sizeof(buff1Read))) {
+   \                     ??eUSCI_A1_ISR_3:
+   \   000038   F2903000.... CMP.B   #0x30, &ring1Write
+   \   00003E   1528         JNC     ??eUSCI_A1_ISR_2
+    118          			ring1Write = START;
+   \   000040   C243....     MOV.B   #0x0, &ring1Write
+    119          		}
+    120          		break;
+   \   000044   123C         JMP     ??eUSCI_A1_ISR_2
+    121          	case 4:
+    122          		//Transmit
+    123          		UCA1TXBUF = buff1Out[proc1Read++];
+   \                     ??eUSCI_A1_ISR_5:
+   \   000046   5F42....     MOV.B   &proc1Read, R15
+   \   00004A   4F4F         MOV.B   R15, R15
+   \   00004C   5F4F....     MOV.B   buff1Out(R15), R15
+   \   000050   4F4F         MOV.B   R15, R15
+   \   000052   824F8E05     MOV.W   R15, &0x58e
+   \   000056   D253....     ADD.B   #0x1, &proc1Read
+    124          		if (buff1Out[proc1Read] == 0x00)
+   \   00005A   5F42....     MOV.B   &proc1Read, R15
+   \   00005E   4F4F         MOV.B   R15, R15
+   \   000060   CF93....     CMP.B   #0x0, buff1Out(R15)
+   \   000064   0220         JNE     ??eUSCI_A1_ISR_2
+    125          			UCA1IE &= ~UCTXIE;
+   \   000066   A2C39A05     BIC.W   #0x2, &0x59a
+    126          		break;
+    127          	default:
+    128          		break;
+    129          	}
+    130          }
+   \                     ??eUSCI_A1_ISR_2:
+   \   00006A   2D17         POPM.W  #0x3, R15
+   \   00006C   0013         RETI
+   \   00006E                REQUIRE _A_UCA1RXBUF_L
+   \   00006E                REQUIRE _A_UCA1TXBUF_L
+   \   00006E                REQUIRE _A_UCA1IE_L
+   \   00006E                REQUIRE _A_UCA1IV_L
+
+   \                                 In  segment INTVEC, offset 0x3a, root
+   \                     `??ADC_ISR::??INTVEC 58`:
+   \   00003A   ....         DC16    ADC_ISR
+
+   \                                 In  segment INTVEC, offset 0x40, root
+   \                     `??eUSCI_A1_ISR::??INTVEC 64`:
+   \   000040   ....         DC16    eUSCI_A1_ISR
+
+   \                                 In  segment INTVEC, offset 0x42, root
+   \                     `??eUSCI_A0_ISR::??INTVEC 66`:
+   \   000042   ....         DC16    eUSCI_A0_ISR
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      8   ADC_ISR
+     12   eUSCI_A0_ISR
+     10   eUSCI_A1_ISR
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     122  ADC_ISR
+       2  ADC_ISR::??INTVEC 58
+       2  _A_ADCCTL0_L
+       2  _A_ADCIV_L
+       2  _A_ADCMCTL0_L
+       2  _A_ADCMEM0_L
+       2  _A_UCA0IE_L
+       2  _A_UCA0IV_L
+       2  _A_UCA0RXBUF_L
+       2  _A_UCA0TXBUF_L
+       2  _A_UCA1IE_L
+       2  _A_UCA1IV_L
+       2  _A_UCA1RXBUF_L
+       2  _A_UCA1TXBUF_L
+     104  eUSCI_A0_ISR
+       2  eUSCI_A0_ISR::??INTVEC 66
+     110  eUSCI_A1_ISR
+       2  eUSCI_A1_ISR::??INTVEC 64
+
+ 
+  24 bytes in segment DATA16_AN
+   6 bytes in segment INTVEC
+ 336 bytes in segment ISR_CODE
+ 
+ 336 bytes of CODE  memory
+   0 bytes of CONST memory (+  6 bytes shared)
+   0 bytes of DATA  memory (+ 24 bytes shared)
+
+Errors: none
+Warnings: none

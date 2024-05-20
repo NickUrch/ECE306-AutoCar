@@ -1,0 +1,301 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.21.1.1000/W32 for MSP430          20/May/2024  16:36:06
+# Copyright 1996-2021 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for MSP430, 8K KickStart Edition 7.21
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\wheels.c
+#    Command line  =  
+#        -f C:\Users\Sickr\AppData\Local\Temp\EW9101.tmp
+#        ("C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\wheels.c"
+#        -lC "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List" -o "C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE
+#        306\Project 10\Debug\Obj" --no_cse --no_unroll --no_inline
+#        --no_code_motion --no_tbaa --debug -D__MSP430FR2355__ -e --double=32
+#        --dlib_config "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.5\430\lib\dlib\dl430xlsfn.h" -I ./ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\List\wheels.lst
+#    Object file   =  
+#        C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project
+#        10\Debug\Obj\wheels.r43
+#
+###############################################################################
+
+C:\Users\Sickr\OneDrive\Desktop\NCSU\ECE 306\Project 10\wheels.c
+      1          //------------------------------------------------------------
+      2          //  Description: Contains Wheel Control files
+      3          //  Nick Urch
+      4          //  September 15, 2022
+      5          //  Built with IAR Embedded Workbench Version: (7.21.1)
+      6          //------------------------------------------------------------
+      7          
+      8          #include "macros.h"
+      9          #include "functions.h"
+     10          #include "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x458
+   \   union <unnamed> _A_TB3CCR3_L
+   \                     _A_TB3CCR3_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x45a
+   \   union <unnamed> _A_TB3CCR4_L
+   \                     _A_TB3CCR4_L:
+   \   000000                DS8 2
+     11          
+     12          extern unsigned int event;
+     13          extern unsigned int wait_counter;
+     14          extern unsigned int wait_timer;
+     15          extern unsigned int runMode;
+     16          extern unsigned int LCD_Menu;
+     17          
+     18          //Forward
+
+   \                                 In  segment CODE, align 2
+     19          void Run_Forward(unsigned int speed) {
+   \                     Run_Forward:
+     20          	if (!wait_timer) {
+   \   000000   8293....     CMP.W   #0x0, &wait_timer
+   \   000004   0720         JNE     ??Run_Forward_0
+     21          		R_FWD_SPEED = speed + RIGHT_OFFSET;
+   \   000006   0F4C         MOV.W   R12, R15
+   \   000008   3F50C800     ADD.W   #0xc8, R15
+   \   00000C   824F5404     MOV.W   R15, &0x454
+     22          		L_FWD_SPEED = speed + LEFT_OFFSET;
+   \   000010   824C5804     MOV.W   R12, &0x458
+     23          	}
+     24          }
+   \                     ??Run_Forward_0:
+   \   000014   1001         RETA
+   \   000016                REQUIRE _A_TB3CCR1_L
+   \   000016                REQUIRE _A_TB3CCR3_L
+     25          
+     26          //Reverse
+
+   \                                 In  segment CODE, align 2
+     27          void Run_Reverse(unsigned int speed) {
+   \                     Run_Reverse:
+     28          	if (!wait_timer) {	
+   \   000000   8293....     CMP.W   #0x0, &wait_timer
+   \   000004   0720         JNE     ??Run_Reverse_0
+     29          		R_REV_SPEED = speed + RIGHT_OFFSET;
+   \   000006   0F4C         MOV.W   R12, R15
+   \   000008   3F50C800     ADD.W   #0xc8, R15
+   \   00000C   824F5604     MOV.W   R15, &0x456
+     30          		L_REV_SPEED = speed + LEFT_OFFSET;
+   \   000010   824C5A04     MOV.W   R12, &0x45a
+     31          	}
+     32          }
+   \                     ??Run_Reverse_0:
+   \   000014   1001         RETA
+   \   000016                REQUIRE _A_TB3CCR2_L
+   \   000016                REQUIRE _A_TB3CCR4_L
+     33          
+     34          //Zero Point Turn Right
+
+   \                                 In  segment CODE, align 2
+     35          void Zero_Point_Right(unsigned int speed) {
+   \                     Zero_Point_Right:
+     36          	if (!wait_timer) {
+   \   000000   8293....     CMP.W   #0x0, &wait_timer
+   \   000004   0720         JNE     ??Zero_Point_Right_0
+     37          		R_REV_SPEED = speed + RIGHT_OFFSET;
+   \   000006   0F4C         MOV.W   R12, R15
+   \   000008   3F50C800     ADD.W   #0xc8, R15
+   \   00000C   824F5604     MOV.W   R15, &0x456
+     38          		L_FWD_SPEED = speed + LEFT_OFFSET;
+   \   000010   824C5804     MOV.W   R12, &0x458
+     39          	}
+     40          }
+   \                     ??Zero_Point_Right_0:
+   \   000014   1001         RETA
+   \   000016                REQUIRE _A_TB3CCR2_L
+   \   000016                REQUIRE _A_TB3CCR3_L
+     41          
+     42          //Zero Point Turn Left
+
+   \                                 In  segment CODE, align 2
+     43          void Zero_Point_Left(unsigned int speed) {
+   \                     Zero_Point_Left:
+     44          	if (!wait_timer) {
+   \   000000   8293....     CMP.W   #0x0, &wait_timer
+   \   000004   0720         JNE     ??Zero_Point_Left_0
+     45          		R_FWD_SPEED = speed + RIGHT_OFFSET;
+   \   000006   0F4C         MOV.W   R12, R15
+   \   000008   3F50C800     ADD.W   #0xc8, R15
+   \   00000C   824F5404     MOV.W   R15, &0x454
+     46          		L_REV_SPEED = speed + LEFT_OFFSET;
+   \   000010   824C5A04     MOV.W   R12, &0x45a
+     47          	}
+     48          }
+   \                     ??Zero_Point_Left_0:
+   \   000014   1001         RETA
+   \   000016                REQUIRE _A_TB3CCR1_L
+   \   000016                REQUIRE _A_TB3CCR4_L
+     49          
+     50          //Forward Turn
+
+   \                                 In  segment CODE, align 2
+     51          void Forward_Turn(unsigned int lSpeed, unsigned int rSpeed) {
+   \                     Forward_Turn:
+     52          	if (!wait_timer) {
+   \   000000   8293....     CMP.W   #0x0, &wait_timer
+   \   000004   0720         JNE     ??Forward_Turn_0
+     53          		R_FWD_SPEED = rSpeed + RIGHT_OFFSET;
+   \   000006   0F4D         MOV.W   R13, R15
+   \   000008   3F50C800     ADD.W   #0xc8, R15
+   \   00000C   824F5404     MOV.W   R15, &0x454
+     54          		L_FWD_SPEED = lSpeed + LEFT_OFFSET;
+   \   000010   824C5804     MOV.W   R12, &0x458
+     55          	}
+     56          }
+   \                     ??Forward_Turn_0:
+   \   000014   1001         RETA
+   \   000016                REQUIRE _A_TB3CCR1_L
+   \   000016                REQUIRE _A_TB3CCR3_L
+     57          
+     58          //Reverse Turn
+
+   \                                 In  segment CODE, align 2
+     59          void Reverse_Turn(unsigned int lSpeed, unsigned int rSpeed) {
+   \                     Reverse_Turn:
+     60          	if (!wait_timer) {
+   \   000000   8293....     CMP.W   #0x0, &wait_timer
+   \   000004   0720         JNE     ??Reverse_Turn_0
+     61          		R_REV_SPEED = rSpeed + RIGHT_OFFSET;
+   \   000006   0F4D         MOV.W   R13, R15
+   \   000008   3F50C800     ADD.W   #0xc8, R15
+   \   00000C   824F5604     MOV.W   R15, &0x456
+     62          		L_REV_SPEED = lSpeed + LEFT_OFFSET;
+   \   000010   824C5A04     MOV.W   R12, &0x45a
+     63          	}
+     64          }
+   \                     ??Reverse_Turn_0:
+   \   000014   1001         RETA
+   \   000016                REQUIRE _A_TB3CCR2_L
+   \   000016                REQUIRE _A_TB3CCR4_L
+     65          
+     66          //Turn all wheels off
+
+   \                                 In  segment CODE, align 2
+     67          void Wheels_Off(void) {
+   \                     Wheels_Off:
+     68          	R_FWD_SPEED = WHEELS_OFF;
+   \   000000   82435404     MOV.W   #0x0, &0x454
+     69          	R_REV_SPEED = WHEELS_OFF;
+   \   000004   82435604     MOV.W   #0x0, &0x456
+     70          	L_FWD_SPEED = WHEELS_OFF;
+   \   000008   82435804     MOV.W   #0x0, &0x458
+     71          	L_REV_SPEED = WHEELS_OFF;
+   \   00000C   82435A04     MOV.W   #0x0, &0x45a
+     72          	wait_counter = RESET;
+   \   000010   8243....     MOV.W   #0x0, &wait_counter
+     73          	wait_timer = TRUE;
+   \   000014   9243....     MOV.W   #0x1, &wait_timer
+     74          }
+   \   000018   1001         RETA
+   \   00001A                REQUIRE _A_TB3CCR1_L
+   \   00001A                REQUIRE _A_TB3CCR2_L
+   \   00001A                REQUIRE _A_TB3CCR3_L
+   \   00001A                REQUIRE _A_TB3CCR4_L
+     75          
+     76          
+     77          //Make sure Forward and Reverse are not on at the same time (Magic Smoke)
+
+   \                                 In  segment CODE, align 2
+     78          void Check_Wheels(void) {
+   \                     Check_Wheels:
+     79          	if ((R_FWD_SPEED && R_REV_SPEED) || (L_FWD_SPEED && L_REV_SPEED)) {
+   \   000000   82935404     CMP.W   #0x0, &0x454
+   \   000004   0324         JEQ     ??Check_Wheels_0
+   \   000006   82935604     CMP.W   #0x0, &0x456
+   \   00000A   0620         JNE     ??Check_Wheels_1
+   \                     ??Check_Wheels_0:
+   \   00000C   82935804     CMP.W   #0x0, &0x458
+   \   000010   0E24         JEQ     ??Check_Wheels_2
+   \   000012   82935A04     CMP.W   #0x0, &0x45a
+   \   000016   0B24         JEQ     ??Check_Wheels_2
+     80          		Wheels_Off();
+   \                     ??Check_Wheels_1:
+   \   000018   ........     CALLA   #Wheels_Off
+     81          		runMode = IDLE;
+   \   00001C   8243....     MOV.W   #0x0, &runMode
+     82          		wait_timer = TRUE;
+   \   000020   9243....     MOV.W   #0x1, &wait_timer
+     83          		wait_counter = RESET;
+   \   000024   8243....     MOV.W   #0x0, &wait_counter
+     84          		LCD_Menu = LCD_ERROR;
+   \   000028   B2400600.... MOV.W   #0x6, &LCD_Menu
+     85          	}
+     86          }
+   \                     ??Check_Wheels_2:
+   \   00002E   1001         RETA
+   \   000030                REQUIRE _A_TB3CCR1_L
+   \   000030                REQUIRE _A_TB3CCR2_L
+   \   000030                REQUIRE _A_TB3CCR3_L
+   \   000030                REQUIRE _A_TB3CCR4_L
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Check_Wheels
+        4   -> Wheels_Off
+      4   Forward_Turn
+      4   Reverse_Turn
+      4   Run_Forward
+      4   Run_Reverse
+      4   Wheels_Off
+      4   Zero_Point_Left
+      4   Zero_Point_Right
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      48  Check_Wheels
+      22  Forward_Turn
+      22  Reverse_Turn
+      22  Run_Forward
+      22  Run_Reverse
+      26  Wheels_Off
+      22  Zero_Point_Left
+      22  Zero_Point_Right
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  _A_TB3CCR3_L
+       2  _A_TB3CCR4_L
+
+ 
+ 206 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+ 
+ 206 bytes of CODE memory
+   0 bytes of DATA memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none
